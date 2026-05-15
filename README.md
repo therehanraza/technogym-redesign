@@ -109,8 +109,8 @@ Backend free option:
 
 Deployment links:
 
-- Frontend: add after deployment
-- Backend API: add after deployment
+- Frontend: https://technogym-redesign.vercel.app
+- Backend API: https://technogym-redesign-api.onrender.com/api
 
 ## Screenshots
 
