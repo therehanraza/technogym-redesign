@@ -11,7 +11,7 @@ from app.routes.order_routes import router as order_router
 app = FastAPI(
     title=settings.APP_NAME,
     version="1.0.0",
-    description="Python FastAPI backend for the Technogym redesigned frontend"
+    description="Python FastAPI backend for the Technogym website redesign"
 )
 
 allowed_origins = [

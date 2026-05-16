@@ -40,7 +40,7 @@ const megaMenus = {
   products: {
     eyebrow: "Products",
     title: "Explore Products",
-    text: "All links are routed inside this redesigned frontend.",
+    text: "Discover premium cardio, strength, functional training, and home fitness equipment.",
     columns: [
       ["All Products", "/category/all-products"],
       ["Shop Home Essentials", "/shop"],
@@ -59,7 +59,7 @@ const megaMenus = {
   home: {
     eyebrow: "Home Gym",
     title: "Explore Home Gym",
-    text: "All links are routed inside this redesigned frontend.",
+    text: "Build a personal wellness space with luxury equipment, room planning, and design support.",
     columns: [
       ["Home Gym", "/home-gym"],
       ["Luxury Home Gym", "/luxury-home-gym"],
@@ -71,7 +71,7 @@ const megaMenus = {
   business: {
     eyebrow: "Business",
     title: "Explore Business",
-    text: "All links are routed inside this redesigned frontend.",
+    text: "Create professional fitness spaces for clubs, hotels, workplaces, and medical wellness.",
     columns: [
       ["Business", "/business"],
       ["Commercial Equipment", "/business-equipment"],
@@ -84,7 +84,7 @@ const megaMenus = {
   support: {
     eyebrow: "Support",
     title: "Explore Support",
-    text: "All links are routed inside this redesigned frontend.",
+    text: "Get product care, service assistance, technical support, and customer guidance.",
     columns: [
       ["Support Home", "/support"],
       ["Technogym Care", "/technogym-care"],
@@ -96,7 +96,7 @@ const megaMenus = {
   stories: {
     eyebrow: "Stories",
     title: "Explore Stories",
-    text: "All links are routed inside this redesigned frontend.",
+    text: "Read insights on wellness, sustainability, training culture, and design.",
     columns: [
       ["Stories", "/stories"],
       ["Wellness", "/wellness"],
@@ -155,7 +155,7 @@ function Header({ cartCount, onSearch, onCart }) {
   }, [activeMenu]);
 
   return (
-    <div className="nav-system" ref={navRef}>
+    <div className="nav-system" ref={navRef} onMouseLeave={() => setActiveMenu(null)}>
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
         <nav className="desktop-nav">
@@ -164,8 +164,7 @@ function Header({ cartCount, onSearch, onCart }) {
               key={label}
               type="button"
               className={`nav-link ${activeMenu === menuKey ? "active" : ""}`}
-              onClick={() => setActiveMenu(menuKey)}
-              onFocus={() => setActiveMenu(menuKey)}
+              onClick={() => setActiveMenu((current) => current === menuKey ? null : menuKey)}
               onMouseEnter={() => setActiveMenu(menuKey)}
             >
               {label}<ChevronDown size={14} />
@@ -187,7 +186,6 @@ function Header({ cartCount, onSearch, onCart }) {
           </div>
         )}
       </header>
-        {activeMegaMenu && <button className="mega-backdrop" aria-label="Close menu" onClick={() => setActiveMenu(null)} />}
         <div className={`mega-menu ${activeMegaMenu ? "is-open" : ""}`} aria-hidden={!activeMegaMenu}>
           <div className="mega-inner container">
             {activeMegaMenu && (
@@ -219,7 +217,7 @@ function Hero() {
         <div>
           <p className="eyebrow chip">Premium wellness equipment redesigned for modern India</p>
           <h1>A complete modern redesign for Technogym experience.</h1>
-          <p className="hero-copy">Home gym, commercial gym, products, support, stories and consultation flows redesigned in one complete full-stack website.</p>
+          <p className="hero-copy">Home gym, commercial fitness, product discovery, support, stories, and consultation flows brought together in one refined experience.</p>
           <div className="hero-actions">
             <Link to="/shop" className="primary-cta">Shop now <ArrowRight size={18} /></Link>
             <Link to="/business" className="secondary-cta">Business solutions</Link>
@@ -421,7 +419,7 @@ function App() {
     <>
       <Header cartCount={cart.length} onSearch={() => setSearchOpen(true)} onCart={() => setCartOpen(true)} />
       {content}
-      <footer><div className="container footer-grid"><b>TECHNOGYM</b><p>Portfolio redesign of the original Technogym experience for modern full-stack presentation.</p><Link to="/contacts">Contact</Link></div></footer>
+      <footer><div className="container footer-grid"><b>TECHNOGYM</b><p>A modern premium wellness experience for equipment discovery, planning, and consultation.</p><Link to="/contacts">Contact</Link></div></footer>
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} products={products} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} remove={(index) => setCart((items) => items.filter((_, itemIndex) => itemIndex !== index))} />
     </>

@@ -1,6 +1,6 @@
 # Technogym Website Redesign
 
-Full-stack portfolio redesign of the Technogym India website with a modern React frontend and Python FastAPI backend.
+Full-stack redesign of the Technogym India website with a modern React frontend and Python FastAPI backend.
 
 Original website: https://www.technogym.com/en-IN/
 
