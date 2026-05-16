@@ -133,20 +133,17 @@ function Header({ cartCount, onSearch, onCart }) {
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
         <nav className="desktop-nav">
-          {links.map(([label, to, menuKey]) => (
-            <Link
+          {links.map(([label, , menuKey]) => (
+            <button
               key={label}
-              to={to}
+              type="button"
               className={`nav-link ${activeMenu === menuKey ? "active" : ""}`}
-              onClick={(event) => {
-                event.preventDefault();
-                setActiveMenu((current) => current === menuKey ? null : menuKey);
-              }}
+              onClick={() => setActiveMenu((current) => current === menuKey ? null : menuKey)}
               onFocus={() => setActiveMenu(menuKey)}
               onMouseEnter={() => setActiveMenu(menuKey)}
             >
               {label}<ChevronDown size={14} />
-            </Link>
+            </button>
           ))}
         </nav>
         <div className="header-actions">
