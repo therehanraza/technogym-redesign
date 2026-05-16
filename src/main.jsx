@@ -173,7 +173,7 @@ function Header({ cartCount, onSearch, onCart }) {
         </nav>
         <div className="header-actions">
           <button aria-label="Search" className="icon-button" onClick={() => { setActiveMenu(null); onSearch(); }}><Search /></button>
-          <Link to="/account" className="icon-button" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
+          <Link to="/account" className="icon-button account-link" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
           <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
           <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
           <button aria-label="Menu" className="icon-button mobile-only" onClick={() => { setActiveMenu(null); setOpen(true); }}><Menu /></button>
@@ -216,8 +216,8 @@ function Hero() {
       <div className="hero-grid container">
         <div>
           <p className="eyebrow chip">Premium wellness equipment redesigned for modern India</p>
-          <h1>A complete modern redesign for Technogym experience.</h1>
-          <p className="hero-copy">Home gym, commercial fitness, product discovery, support, stories, and consultation flows brought together in one refined experience.</p>
+          <h1>A complete modern Technogym experience.</h1>
+          <p className="hero-copy">Home gym, commercial fitness, product discovery, support, stories, and consultation in one refined experience.</p>
           <div className="hero-actions">
             <Link to="/shop" className="primary-cta">Shop now <ArrowRight size={18} /></Link>
             <Link to="/business" className="secondary-cta">Business solutions</Link>
@@ -372,6 +372,72 @@ function GenericPage({ path, cart, onOrderComplete }) {
   );
 }
 
+function AdminDashboard() {
+  const [inquiries, setInquiries] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [status, setStatus] = useState({ loading: true, error: "" });
+
+  useEffect(() => {
+    Promise.all([api.getInquiries(), api.getOrders()])
+      .then(([inquiryRes, orderRes]) => {
+        setInquiries(inquiryRes?.data || []);
+        setOrders(orderRes?.data || []);
+        setStatus({ loading: false, error: "" });
+      })
+      .catch((error) => setStatus({ loading: false, error: error.message }));
+  }, []);
+
+  const openInquiries = inquiries.filter((item) => item.status !== "CLOSED").length;
+  const activeOrders = orders.filter((item) => !["DELIVERED", "CANCELLED"].includes(item.status)).length;
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Admin"
+        title="Inquiry and order dashboard"
+        text="Track customer consultation requests, checkout submissions, and service follow-ups from one simple view."
+        image="https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1400&q=85"
+      />
+      <section className="section container admin-shell">
+        <div className="admin-stats">
+          <div><span>Total inquiries</span><b>{inquiries.length}</b></div>
+          <div><span>Open inquiries</span><b>{openInquiries}</b></div>
+          <div><span>Total orders</span><b>{orders.length}</b></div>
+          <div><span>Active orders</span><b>{activeOrders}</b></div>
+        </div>
+        {status.loading && <p className="form-success">Loading dashboard data...</p>}
+        {status.error && <p className="form-error">{status.error}</p>}
+        <div className="admin-grid">
+          <div className="admin-panel">
+            <h2>Recent inquiries</h2>
+            {inquiries.length === 0 ? <p className="muted">No consultation requests yet.</p> : inquiries.slice(0, 6).map((item) => (
+              <article className="admin-row" key={`inquiry-${item.id}`}>
+                <div>
+                  <b>{item.fullName}</b>
+                  <span>{item.requirementType} - {item.emailOrPhone}</span>
+                </div>
+                <em>{item.status}</em>
+              </article>
+            ))}
+          </div>
+          <div className="admin-panel">
+            <h2>Recent orders</h2>
+            {orders.length === 0 ? <p className="muted">No checkout requests yet.</p> : orders.slice(0, 6).map((item) => (
+              <article className="admin-row" key={`order-${item.id}`}>
+                <div>
+                  <b>{item.customer?.fullName || "Customer"}</b>
+                  <span>{item.items?.length || 0} item request - {item.customer?.emailOrPhone || "No contact"}</span>
+                </div>
+                <em>{item.status}</em>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
 function SearchOverlay({ open, onClose, products }) {
   const [query, setQuery] = useState("");
   const results = products.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()) || item.category.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
@@ -412,6 +478,7 @@ function App() {
     if (path === "/category/all-products") return <Listing categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
     if (path.startsWith("/category/")) return <Listing slug={path.split("/").pop()} categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
     if (path.startsWith("/product/")) return <ProductDetail slug={path.split("/").pop()} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
+    if (path === "/admin") return <AdminDashboard />;
     return <GenericPage path={path} cart={cart} onOrderComplete={() => setCart([])} />;
   }, [path, categories, products, cart]);
 
@@ -419,7 +486,7 @@ function App() {
     <>
       <Header cartCount={cart.length} onSearch={() => setSearchOpen(true)} onCart={() => setCartOpen(true)} />
       {content}
-      <footer><div className="container footer-grid"><b>TECHNOGYM</b><p>A modern premium wellness experience for equipment discovery, planning, and consultation.</p><Link to="/contacts">Contact</Link></div></footer>
+      <footer><div className="container footer-grid"><b>TECHNOGYM</b><p>A modern premium wellness experience for equipment discovery, planning, and consultation.</p><div className="footer-links"><Link to="/contacts">Contact</Link><Link to="/admin">Admin</Link></div></div></footer>
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} products={products} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} remove={(index) => setCart((items) => items.filter((_, itemIndex) => itemIndex !== index))} />
     </>

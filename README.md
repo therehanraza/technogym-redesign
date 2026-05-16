@@ -4,6 +4,8 @@ Full-stack redesign of the Technogym India website with a modern React frontend 
 
 Original website: https://www.technogym.com/en-IN/
 
+Submitted by: Rehan Raza
+
 ## Purpose
 
 This project reimagines Technogym's shopping, consultation, product discovery, business, support, and checkout flows with a premium dark/gold interface while keeping the original fitness and wellness purpose clear.
@@ -20,6 +22,7 @@ This project reimagines Technogym's shopping, consultation, product discovery, b
 - Search overlay, mobile navigation, cart drawer, hover states, loading states, and form feedback
 - Functional contact/consultation inquiry API
 - Functional checkout/order request API
+- Admin dashboard for inquiries and checkout requests
 - Backend validation with Pydantic
 - SQLite database with starter catalog data
 - GitHub-ready `.gitignore` and deployment config files
@@ -111,11 +114,33 @@ Deployment links:
 
 - Frontend: https://technogym-redesign.vercel.app
 - Backend API: https://technogym-redesign-api.onrender.com/api
+- Admin Dashboard: https://technogym-redesign.vercel.app/#/admin
+
+## Screenshots
+
+### Homepage
+
+![Homepage](public/screenshots/homepage.png)
+
+### Product Listing
+
+![Product Listing](public/screenshots/product-listing.png)
+
+### Contact Form
+
+![Contact Form](public/screenshots/contact-form.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](public/screenshots/admin-dashboard.png)
+
+### Mobile View
+
+![Mobile View](public/screenshots/mobile-view.png)
 
 ## Future Improvements
 
-- Admin dashboard for inquiries and orders
 - Persistent hosted database such as Neon, Supabase, or MongoDB Atlas free tier
-- Authentication for account and order history
+- Role-based authentication for account, admin, and order history
 - Product image management
 - Email notifications for new inquiries
