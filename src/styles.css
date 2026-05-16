@@ -61,7 +61,17 @@ button { cursor: pointer; }
   background: rgba(4, 4, 4, 0.98);
   border-bottom: 1px solid var(--line);
   box-shadow: 0 26px 80px rgba(0,0,0,.5);
-  animation: megaIn .16s ease-out;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+.mega-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 .mega-inner {
   display: grid;
@@ -89,7 +99,6 @@ button { cursor: pointer; }
   color: var(--gold);
   transform: translateY(-2px);
 }
-@keyframes megaIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
 .icon-button {
   width: 40px;

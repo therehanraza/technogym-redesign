@@ -121,6 +121,7 @@ function Link({ to, children, className = "", onClick }) {
 function Header({ cartCount, onSearch, onCart }) {
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+  const activeMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
   const links = [
     ["Products", "/category/all-products", "products"],
     ["Home Gym", "/home-gym", "home"],
@@ -129,7 +130,7 @@ function Header({ cartCount, onSearch, onCart }) {
     ["Stories", "/stories", "stories"],
   ];
   return (
-    <div className="nav-system">
+    <div className="nav-system" onMouseLeave={() => setActiveMenu(null)}>
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
         <nav className="desktop-nav">
@@ -161,27 +162,26 @@ function Header({ cartCount, onSearch, onCart }) {
           </div>
         )}
       </header>
-      {activeMenu && (
-        <div
-          className="mega-menu"
-          onMouseEnter={() => setActiveMenu(activeMenu)}
-        >
+        <div className={`mega-menu ${activeMegaMenu ? "is-open" : ""}`} aria-hidden={!activeMegaMenu}>
           <div className="mega-inner container">
-            <div className="mega-copy">
-              <p className="eyebrow">{megaMenus[activeMenu].eyebrow}</p>
-              <h2>{megaMenus[activeMenu].title}</h2>
-              <p>{megaMenus[activeMenu].text}</p>
-            </div>
-            <div className="mega-grid">
-              {megaMenus[activeMenu].columns.map(([label, to]) => (
-                <Link key={`${activeMenu}-${label}`} to={to} className="mega-card" onClick={() => setActiveMenu(null)}>
-                  {label}
-                </Link>
-              ))}
-            </div>
+            {activeMegaMenu && (
+              <>
+                <div className="mega-copy">
+                  <p className="eyebrow">{activeMegaMenu.eyebrow}</p>
+                  <h2>{activeMegaMenu.title}</h2>
+                  <p>{activeMegaMenu.text}</p>
+                </div>
+                <div className="mega-grid">
+                  {activeMegaMenu.columns.map(([label, to]) => (
+                    <Link key={`${activeMenu}-${label}`} to={to} className="mega-card" onClick={() => setActiveMenu(null)}>
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
-      )}
     </div>
   );
 }
