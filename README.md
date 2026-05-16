@@ -21,7 +21,7 @@ This project reimagines Technogym's shopping, consultation, product discovery, b
 - Functional contact/consultation inquiry API
 - Functional checkout/order request API
 - Backend validation with Pydantic
-- SQLite demo database seeded automatically
+- SQLite database with starter catalog data
 - GitHub-ready `.gitignore` and deployment config files
 
 ## Frontend Setup
@@ -111,16 +111,6 @@ Deployment links:
 
 - Frontend: https://technogym-redesign.vercel.app
 - Backend API: https://technogym-redesign-api.onrender.com/api
-
-## Screenshots
-
-Add screenshots here after deployment:
-
-- Homepage
-- Product listing
-- Product detail
-- Contact form success
-- Mobile menu
 
 ## Future Improvements
 

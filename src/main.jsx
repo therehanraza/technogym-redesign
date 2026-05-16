@@ -360,13 +360,13 @@ function RequestForm({ mode, cart, onOrderComplete }) {
 
 function GenericPage({ path, cart, onOrderComplete }) {
   const key = path.startsWith("/stories/") ? "/stories" : path;
-  const data = pageMap[key] || ["Page Ready", "This route is handled inside the redesigned experience.", "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1400&q=85"];
+  const data = pageMap[key] || ["Wellness Experience", "Explore curated equipment, services, and support for a more complete training space.", "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1400&q=85"];
   const needsForm = key === "/contacts" || key === "/checkout";
   return (
     <>
       <PageHero eyebrow="Technogym Redesign" title={data[0]} text={data[1]} image={data[2]} />
       <section className="section container">
-        {needsForm ? <div className="form-shell"><div><h2>{key === "/checkout" ? "Complete your request" : "Submit your request"}</h2><p>Connected to the Python backend with validation, loading state, and success/error feedback.</p></div><RequestForm mode={key === "/checkout" ? "checkout" : "inquiry"} cart={cart} onOrderComplete={onOrderComplete} /></div> : <div className="feature-grid">{["Premium UI", "Responsive Layout", "Clickable Flow"].map((item) => <div className="feature-card" key={item}><h3>{item}</h3><p>Designed as a complete portfolio-ready page, not a dead-end placeholder.</p></div>)}</div>}
+        {needsForm ? <div className="form-shell"><div><h2>{key === "/checkout" ? "Complete your request" : "Submit your request"}</h2><p>Share your details and the team will help with product selection, pricing, and next steps.</p></div><RequestForm mode={key === "/checkout" ? "checkout" : "inquiry"} cart={cart} onOrderComplete={onOrderComplete} /></div> : <div className="feature-grid">{["Premium planning", "Responsive service", "Guided consultation"].map((item) => <div className="feature-card" key={item}><h3>{item}</h3><p>Explore a focused section built around equipment discovery, service information, and consultation support.</p></div>)}</div>}
       </section>
     </>
   );
