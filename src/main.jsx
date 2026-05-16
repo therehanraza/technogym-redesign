@@ -138,7 +138,10 @@ function Header({ cartCount, onSearch, onCart }) {
               key={label}
               to={to}
               className={`nav-link ${activeMenu === menuKey ? "active" : ""}`}
-              onClick={() => setActiveMenu(null)}
+              onClick={(event) => {
+                event.preventDefault();
+                setActiveMenu((current) => current === menuKey ? null : menuKey);
+              }}
               onFocus={() => setActiveMenu(menuKey)}
               onMouseEnter={() => setActiveMenu(menuKey)}
             >
