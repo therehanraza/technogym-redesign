@@ -1,4 +1,4 @@
-import React, { StrictMode, useEffect, useMemo, useState } from "react";
+import React, { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
@@ -121,6 +121,7 @@ function Link({ to, children, className = "", onClick }) {
 function Header({ cartCount, onSearch, onCart }) {
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+  const navRef = useRef(null);
   const activeMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
   const links = [
     ["Products", "/category/all-products", "products"],
@@ -129,8 +130,32 @@ function Header({ cartCount, onSearch, onCart }) {
     ["Support", "/support", "support"],
     ["Stories", "/stories", "stories"],
   ];
+
+  useEffect(() => {
+    if (!activeMenu) return undefined;
+
+    const closeOnOutsideClick = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setActiveMenu(null);
+      }
+    };
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setActiveMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [activeMenu]);
+
   return (
-    <div className="nav-system">
+    <div className="nav-system" ref={navRef}>
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
         <nav className="desktop-nav">
@@ -148,11 +173,11 @@ function Header({ cartCount, onSearch, onCart }) {
           ))}
         </nav>
         <div className="header-actions">
-          <button aria-label="Search" className="icon-button" onClick={onSearch}><Search /></button>
-          <Link to="/account" className="icon-button" aria-label="Account"><User /></Link>
-          <button aria-label="Cart" className="icon-button cart-button" onClick={onCart}><ShoppingBag /><span>{cartCount}</span></button>
-          <Link to="/contacts" className="primary-pill">Book Consultation</Link>
-          <button aria-label="Menu" className="icon-button mobile-only" onClick={() => setOpen(true)}><Menu /></button>
+          <button aria-label="Search" className="icon-button" onClick={() => { setActiveMenu(null); onSearch(); }}><Search /></button>
+          <Link to="/account" className="icon-button" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
+          <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
+          <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
+          <button aria-label="Menu" className="icon-button mobile-only" onClick={() => { setActiveMenu(null); setOpen(true); }}><Menu /></button>
         </div>
         {open && (
           <div className="mobile-menu">
@@ -162,6 +187,7 @@ function Header({ cartCount, onSearch, onCart }) {
           </div>
         )}
       </header>
+        {activeMegaMenu && <button className="mega-backdrop" aria-label="Close menu" onClick={() => setActiveMenu(null)} />}
         <div className={`mega-menu ${activeMegaMenu ? "is-open" : ""}`} aria-hidden={!activeMegaMenu}>
           <div className="mega-inner container">
             {activeMegaMenu && (

@@ -67,6 +67,16 @@ button { cursor: pointer; }
   transform: translateY(-8px);
   transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
 }
+.mega-backdrop {
+  position: fixed;
+  inset: 68px 0 0;
+  z-index: 50;
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
 .mega-menu.is-open {
   opacity: 1;
   visibility: visible;
