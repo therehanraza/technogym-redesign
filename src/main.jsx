@@ -36,6 +36,76 @@ const businessCards = [
   ["Medical", "/business/medical", "Rehabilitation and active ageing movement environments.", "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=85"],
 ];
 
+const megaMenus = {
+  products: {
+    eyebrow: "Products",
+    title: "Explore Products",
+    text: "All links are routed inside this redesigned frontend.",
+    columns: [
+      ["All Products", "/category/all-products"],
+      ["Shop Home Essentials", "/shop"],
+      ["Treadmills", "/category/treadmills"],
+      ["Bikes", "/category/exercise-bikes"],
+      ["Ellipticals", "/category/ellipticals"],
+      ["Rower", "/category/rower"],
+      ["Stair Climbers", "/category/stair-climbers"],
+      ["Multi Gyms", "/category/multi-gyms"],
+      ["Dumbbells & Kettlebells", "/category/free-weights"],
+      ["Benches", "/category/benches"],
+      ["Barbells & Plates", "/category/free-weights"],
+      ["Racks", "/category/multi-gyms"],
+    ],
+  },
+  home: {
+    eyebrow: "Home Gym",
+    title: "Explore Home Gym",
+    text: "All links are routed inside this redesigned frontend.",
+    columns: [
+      ["Home Gym", "/home-gym"],
+      ["Luxury Home Gym", "/luxury-home-gym"],
+      ["Lifestyle Home Gym", "/lifestyle-home-gym"],
+      ["Room Planner", "/room-planner"],
+      ["Design at Technogym", "/design"],
+    ],
+  },
+  business: {
+    eyebrow: "Business",
+    title: "Explore Business",
+    text: "All links are routed inside this redesigned frontend.",
+    columns: [
+      ["Business", "/business"],
+      ["Commercial Equipment", "/business-equipment"],
+      ["Fitness Clubs", "/business/health-clubs"],
+      ["Hotels & Resorts", "/business/hospitality"],
+      ["Corporate Wellness", "/business/corporate"],
+      ["Medical & Rehab", "/business/medical"],
+    ],
+  },
+  support: {
+    eyebrow: "Support",
+    title: "Explore Support",
+    text: "All links are routed inside this redesigned frontend.",
+    columns: [
+      ["Support Home", "/support"],
+      ["Technogym Care", "/technogym-care"],
+      ["Technical Support", "/technical-support"],
+      ["Contacts", "/contacts"],
+      ["Technogym App", "/technogym-app"],
+    ],
+  },
+  stories: {
+    eyebrow: "Stories",
+    title: "Explore Stories",
+    text: "All links are routed inside this redesigned frontend.",
+    columns: [
+      ["Stories", "/stories"],
+      ["Wellness", "/wellness"],
+      ["Sustainability", "/sustainability"],
+      ["Design", "/design"],
+    ],
+  },
+};
+
 function getPath() {
   return window.location.hash.replace("#", "") || "/";
 }
@@ -50,30 +120,70 @@ function Link({ to, children, className = "", onClick }) {
 
 function Header({ cartCount, onSearch, onCart }) {
   const [open, setOpen] = useState(false);
-  const links = [["Products", "/category/all-products"], ["Home Gym", "/home-gym"], ["Business", "/business"], ["Support", "/support"], ["Stories", "/stories"]];
+  const [activeMenu, setActiveMenu] = useState(null);
+  const links = [
+    ["Products", "/category/all-products", "products"],
+    ["Home Gym", "/home-gym", "home"],
+    ["Business", "/business", "business"],
+    ["Support", "/support", "support"],
+    ["Stories", "/stories", "stories"],
+  ];
   return (
-    <header className="site-header">
-      <Link to="/" className="brand">TECHNOGYM</Link>
-      <nav className="desktop-nav">
-        {links.map(([label, to]) => (
-          <Link key={label} to={to} className="nav-link">{label}<ChevronDown size={14} /></Link>
-        ))}
-      </nav>
-      <div className="header-actions">
-        <button aria-label="Search" className="icon-button" onClick={onSearch}><Search /></button>
-        <Link to="/account" className="icon-button" aria-label="Account"><User /></Link>
-        <button aria-label="Cart" className="icon-button cart-button" onClick={onCart}><ShoppingBag /><span>{cartCount}</span></button>
-        <Link to="/contacts" className="primary-pill">Book Consultation</Link>
-        <button aria-label="Menu" className="icon-button mobile-only" onClick={() => setOpen(true)}><Menu /></button>
-      </div>
-      {open && (
-        <div className="mobile-menu">
-          <button className="icon-button close" onClick={() => setOpen(false)}><X /></button>
-          {links.map(([label, to]) => <Link key={label} to={to} onClick={() => setOpen(false)}>{label}</Link>)}
-          <Link to="/contacts" className="primary-pill" onClick={() => setOpen(false)}>Book Consultation</Link>
+    <div className="nav-system" onMouseLeave={() => setActiveMenu(null)}>
+      <header className="site-header">
+        <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
+        <nav className="desktop-nav">
+          {links.map(([label, to, menuKey]) => (
+            <Link
+              key={label}
+              to={to}
+              className={`nav-link ${activeMenu === menuKey ? "active" : ""}`}
+              onClick={() => setActiveMenu(null)}
+              onFocus={() => setActiveMenu(menuKey)}
+              onMouseEnter={() => setActiveMenu(menuKey)}
+            >
+              {label}<ChevronDown size={14} />
+            </Link>
+          ))}
+        </nav>
+        <div className="header-actions">
+          <button aria-label="Search" className="icon-button" onClick={onSearch}><Search /></button>
+          <Link to="/account" className="icon-button" aria-label="Account"><User /></Link>
+          <button aria-label="Cart" className="icon-button cart-button" onClick={onCart}><ShoppingBag /><span>{cartCount}</span></button>
+          <Link to="/contacts" className="primary-pill">Book Consultation</Link>
+          <button aria-label="Menu" className="icon-button mobile-only" onClick={() => setOpen(true)}><Menu /></button>
+        </div>
+        {open && (
+          <div className="mobile-menu">
+            <button className="icon-button close" onClick={() => setOpen(false)}><X /></button>
+            {links.map(([label, to]) => <Link key={label} to={to} onClick={() => setOpen(false)}>{label}</Link>)}
+            <Link to="/contacts" className="primary-pill mobile-cta" onClick={() => setOpen(false)}>Book Consultation</Link>
+          </div>
+        )}
+      </header>
+      {activeMenu && (
+        <div
+          className="mega-menu"
+          onMouseEnter={() => setActiveMenu(activeMenu)}
+          onMouseLeave={() => setActiveMenu(null)}
+        >
+          <div className="mega-inner container">
+            <div className="mega-copy">
+              <p className="eyebrow">{megaMenus[activeMenu].eyebrow}</p>
+              <h2>{megaMenus[activeMenu].title}</h2>
+              <p>{megaMenus[activeMenu].text}</p>
+            </div>
+            <div className="mega-grid">
+              {megaMenus[activeMenu].columns.map(([label, to]) => (
+                <Link key={`${activeMenu}-${label}`} to={to} className="mega-card" onClick={() => setActiveMenu(null)}>
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       )}
-    </header>
+    </div>
   );
 }
 
