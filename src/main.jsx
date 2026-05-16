@@ -130,7 +130,7 @@ function Header({ cartCount, onSearch, onCart }) {
     ["Stories", "/stories", "stories"],
   ];
   return (
-    <div className="nav-system" onMouseLeave={() => setActiveMenu(null)}>
+    <div className="nav-system">
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
         <nav className="desktop-nav">
