@@ -181,6 +181,7 @@ function Header({ cartCount, onSearch, onCart }) {
 
   return (
     <div className="nav-system" ref={navRef} onMouseLeave={() => setActiveMenu(null)}>
+      <input id="mobile-menu-toggle" ref={mobileMenuRef} className="mobile-menu-toggle" type="checkbox" aria-label="Toggle mobile menu" />
       <div className="nav-announcement">
         <span>The Wellness Company</span>
         <span>Free consultation for home and business fitness spaces</span>
@@ -206,30 +207,29 @@ function Header({ cartCount, onSearch, onCart }) {
           <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
           <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
           <div className="mobile-menu-control">
-            <input id="mobile-menu-toggle" ref={mobileMenuRef} className="mobile-menu-toggle" type="checkbox" aria-label="Toggle mobile menu" />
             <label htmlFor="mobile-menu-toggle" className="mobile-menu-trigger" onClick={() => setActiveMenu(null)}>
               <span>Menu</span>
               <Menu className="menu-icon" size={18} />
               <X className="close-icon" size={18} />
             </label>
-            <div className="mobile-menu-panel" role="dialog" aria-label="Mobile navigation">
-              <Link to="/" className="mobile-home-link" onClick={closeMobileMenu}>Home</Link>
-              {mobileGroups.map(([label, items]) => (
-                <details className="mobile-accordion" key={label}>
-                  <summary>{label}<ChevronDown size={17} /></summary>
-                  <div>
-                    {items.map(([itemLabel, to]) => <Link key={`${label}-${itemLabel}`} to={to} onClick={closeMobileMenu}>{itemLabel}</Link>)}
-                  </div>
-                </details>
-              ))}
-              <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onSearch(); }}>Search products</button>
-              <Link to="/account" onClick={closeMobileMenu}>My Account</Link>
-              <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onCart(); }}>View selection ({cartCount})</button>
-              <Link to="/contacts" className="primary-pill mobile-cta" onClick={closeMobileMenu}>Book Consultation</Link>
-            </div>
           </div>
         </div>
       </header>
+        <nav className="mobile-menu-panel" aria-label="Mobile navigation">
+          <Link to="/" className="mobile-home-link" onClick={closeMobileMenu}>Home</Link>
+          {mobileGroups.map(([label, items]) => (
+            <details className="mobile-accordion" key={label}>
+              <summary>{label}<ChevronDown size={17} /></summary>
+              <div>
+                {items.map(([itemLabel, to]) => <Link key={`${label}-${itemLabel}`} to={to} onClick={closeMobileMenu}>{itemLabel}</Link>)}
+              </div>
+            </details>
+          ))}
+          <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onSearch(); }}>Search products</button>
+          <Link to="/account" onClick={closeMobileMenu}>My Account</Link>
+          <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onCart(); }}>View selection ({cartCount})</button>
+          <Link to="/contacts" className="primary-pill mobile-cta" onClick={closeMobileMenu}>Book Consultation</Link>
+        </nav>
         <div className={`mega-menu ${activeMegaMenu ? "is-open" : ""}`} aria-hidden={!activeMegaMenu}>
           <div className="mega-inner container">
             {activeMegaMenu && (
