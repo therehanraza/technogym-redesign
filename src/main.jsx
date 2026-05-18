@@ -134,6 +134,11 @@ function Header({ cartCount, onSearch, onCart }) {
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const navRef = useRef(null);
+  const openMobileMenu = (event) => {
+    event?.preventDefault();
+    setActiveMenu(null);
+    setOpen(true);
+  };
   const activeMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
   const links = [
     ["Products", "/category/all-products", "products"],
@@ -192,10 +197,10 @@ function Header({ cartCount, onSearch, onCart }) {
           <Link to="/account" className="icon-button account-link" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
           <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
           <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
-          <button aria-label="Menu" aria-expanded={open} className="icon-button mobile-only" onClick={() => { setActiveMenu(null); setOpen((current) => !current); }}><Menu /></button>
+          <button type="button" aria-label="Menu" aria-expanded={open} className="icon-button mobile-only" onTouchStart={openMobileMenu} onPointerDown={openMobileMenu} onClick={openMobileMenu}><Menu /></button>
         </div>
         {open && (
-          <div className="mobile-menu">
+          <div className="mobile-menu" role="dialog" aria-label="Mobile navigation">
             <button className="icon-button close" onClick={() => setOpen(false)}><X /></button>
             {links.map(([label, to]) => <Link key={label} to={to} onClick={() => setOpen(false)}>{label}</Link>)}
             <button className="mobile-action" onClick={() => { setOpen(false); onSearch(); }}>Search products</button>

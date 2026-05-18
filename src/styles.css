@@ -463,7 +463,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 .mobile-menu {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 1000;
   background: #050505;
   display: flex;
   flex-direction: column;
@@ -584,6 +584,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
   .account-link { display: none; }
   .cart-button { display: none; }
   .mobile-only { display: grid !important; position: static; width: 42px !important; height: 42px; background: var(--gold); color: #000; border-radius: 50%; box-shadow: 0 8px 28px rgba(0,0,0,.45); }
+  .mobile-only { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .mobile-only svg { display: block; stroke: #fff; }
   .mobile-only:before {
     content: "";
@@ -592,7 +593,9 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
     border-top: 2px solid #000;
     border-bottom: 2px solid #000;
     box-shadow: 0 5px 0 #000;
+    pointer-events: none;
   }
+  .mobile-only * { pointer-events: none; }
   .mobile-only svg { display: none; }
   .chip { max-width: 100%; white-space: normal; font-size: 10px; line-height: 1.45; letter-spacing: .08em; padding: 9px 12px; overflow-wrap: anywhere; }
   .hero h1, .page-hero h1, .detail-copy h1 { max-width: 100%; font-size: 28px; line-height: 1.08; overflow-wrap: anywhere; }
