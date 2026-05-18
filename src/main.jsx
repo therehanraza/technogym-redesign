@@ -192,12 +192,15 @@ function Header({ cartCount, onSearch, onCart }) {
           <Link to="/account" className="icon-button account-link" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
           <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
           <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
-          <button aria-label="Menu" className="icon-button mobile-only" onClick={() => { setActiveMenu(null); setOpen(true); }}><Menu /></button>
+          <button aria-label="Menu" aria-expanded={open} className="icon-button mobile-only" onClick={() => { setActiveMenu(null); setOpen((current) => !current); }}><Menu /></button>
         </div>
         {open && (
           <div className="mobile-menu">
             <button className="icon-button close" onClick={() => setOpen(false)}><X /></button>
             {links.map(([label, to]) => <Link key={label} to={to} onClick={() => setOpen(false)}>{label}</Link>)}
+            <button className="mobile-action" onClick={() => { setOpen(false); onSearch(); }}>Search products</button>
+            <Link to="/account" onClick={() => setOpen(false)}>My Account</Link>
+            <button className="mobile-action" onClick={() => { setOpen(false); onCart(); }}>View selection ({cartCount})</button>
             <Link to="/contacts" className="primary-pill mobile-cta" onClick={() => setOpen(false)}>Book Consultation</Link>
           </div>
         )}
@@ -416,11 +419,87 @@ function GenericPage({ path, cart, onOrderComplete }) {
   const key = path.startsWith("/stories/") ? "/stories" : path;
   const data = pageMap[key] || ["Wellness Experience", "Explore curated equipment, services, and support for a more complete training space.", "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1400&q=85"];
   const needsForm = key === "/contacts" || key === "/checkout";
+  const sectionTitle = key === "/support" ? "Support built around your equipment" : key === "/business" ? "Professional wellness spaces with measurable impact" : key === "/home-gym" ? "A personal gym designed around your lifestyle" : key === "/stories" ? "Wellness thinking for better movement" : "A complete path from discovery to consultation";
+  const pageContent = {
+    "/home-gym": {
+      cards: [
+        ["Room fit", "Plan equipment around available space, ceiling height, floor finish and daily movement habits."],
+        ["Quiet performance", "Focus on compact, refined products that feel premium inside apartments and private homes."],
+        ["Connected training", "Combine cardio, strength and app-led programs so the room supports long-term progress."],
+      ],
+      highlights: ["Luxury layouts", "Compact cardio", "Strength zones", "Design consultation"],
+    },
+    "/business": {
+      cards: [
+        ["Facility planning", "Build layouts for hotels, clubs, corporate wellness rooms and medical fitness spaces."],
+        ["Member experience", "Create training zones that are easy to navigate, durable and visually consistent."],
+        ["Service continuity", "Support equipment choices with maintenance, onboarding and lifecycle planning."],
+      ],
+      highlights: ["Health clubs", "Hospitality", "Corporate wellness", "Medical fitness"],
+    },
+    "/support": {
+      cards: [
+        ["Product care", "Find the right route for maintenance, warranty questions and everyday equipment guidance."],
+        ["Technical help", "Organize service requests with useful product, issue and contact details from the start."],
+        ["Digital support", "Connect app, account and training service questions with a clear follow-up flow."],
+      ],
+      highlights: ["Maintenance", "Warranty guidance", "Technical assistance", "App support"],
+    },
+    "/stories": {
+      cards: [
+        ["Wellness culture", "Explore ideas around movement, longevity, nutrition and everyday performance."],
+        ["Design stories", "See how premium equipment and interiors can shape better training environments."],
+        ["Sustainability", "Follow product thinking that connects performance, materials and responsible choices."],
+      ],
+      highlights: ["Wellness", "Design", "Performance", "Sustainability"],
+    },
+  };
+  const serviceCards = pageContent[key]?.cards || [
+    ["Discover", "Browse equipment, wellness categories and solution paths based on your space and goals."],
+    ["Plan", "Compare home, business, support and design options before sending your request."],
+    ["Consult", "Submit a guided request so the next step is clear, practical and easy to follow."],
+  ];
+  const highlights = pageContent[key]?.highlights || ["Equipment selection", "Space planning", "Consultation", "Support"];
+  const processSteps = ["Select equipment or service area", "Share room, business or support details", "Receive next-step guidance from the team"];
   return (
     <>
       <PageHero eyebrow="Technogym" title={data[0]} text={data[1]} image={data[2]} />
       <section className="section container">
-        {needsForm ? <div className="form-shell"><div><h2>{key === "/checkout" ? "Complete your request" : "Submit your request"}</h2><p>Share your details and the team will help with product selection, pricing, and next steps.</p></div><RequestForm mode={key === "/checkout" ? "checkout" : "inquiry"} cart={cart} onOrderComplete={onOrderComplete} /></div> : <div className="feature-grid">{["Premium planning", "Responsive service", "Guided consultation"].map((item) => <div className="feature-card" key={item}><h3>{item}</h3><p>Explore a focused section built around equipment discovery, service information, and consultation support.</p></div>)}</div>}
+        {needsForm ? (
+          <div className="form-shell enhanced-form">
+            <div>
+              <p className="eyebrow">Consultation</p>
+              <h2>{key === "/checkout" ? "Complete your request" : "Submit your request"}</h2>
+              <p>Share your details and the team will help with product selection, pricing, and next steps.</p>
+              <div className="process-list">
+                {processSteps.map((step, index) => <span key={step}><b>{index + 1}</b>{step}</span>)}
+              </div>
+            </div>
+            <RequestForm mode={key === "/checkout" ? "checkout" : "inquiry"} cart={cart} onOrderComplete={onOrderComplete} />
+          </div>
+        ) : (
+          <div className="subpage-suite">
+            <div className="subpage-intro">
+              <p className="eyebrow">Experience</p>
+              <h2>{sectionTitle}</h2>
+              <p>Each section is designed to help visitors understand the offer, compare possible paths, and move naturally toward a consultation or product request.</p>
+            </div>
+            <div className="feature-grid rich-features">
+              {serviceCards.map(([title, text]) => <div className="feature-card" key={title}><h3>{title}</h3><p>{text}</p></div>)}
+            </div>
+            <div className="solution-panel">
+              {highlights.map((item, index) => <span key={item}><b>{String(index + 1).padStart(2, "0")}</b>{item}</span>)}
+            </div>
+            <div className="subpage-cta">
+              <div>
+                <p className="eyebrow">Next step</p>
+                <h2>Build your wellness setup with guidance.</h2>
+                <p>Move from inspiration to a clear equipment, service or room-planning request.</p>
+              </div>
+              <Link to="/contacts" className="primary-cta">Request consultation <ArrowRight size={18} /></Link>
+            </div>
+          </div>
+        )}
       </section>
     </>
   );
