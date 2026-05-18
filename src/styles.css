@@ -595,14 +595,16 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
   }
   .mobile-only svg { display: none; }
   .chip { max-width: 100%; white-space: normal; font-size: 10px; line-height: 1.45; letter-spacing: .08em; padding: 9px 12px; overflow-wrap: anywhere; }
-  .hero h1, .page-hero h1, .detail-copy h1 { max-width: 100%; font-size: 30px; line-height: 1.08; overflow-wrap: break-word; }
-  .hero-copy, .page-hero p, .detail-copy p { font-size: 16px; overflow-wrap: break-word; }
+  .hero h1, .page-hero h1, .detail-copy h1 { max-width: 100%; font-size: 28px; line-height: 1.08; overflow-wrap: anywhere; }
+  .hero-copy, .page-hero p, .detail-copy p { max-width: 100%; font-size: 16px; overflow-wrap: anywhere; }
   .hero-copy, .page-copy, .hero-grid, .page-grid { width: 100%; max-width: 100%; }
-  .hero-grid, .page-grid { grid-template-columns: minmax(0, 1fr); padding: 58px 0; }
+  .hero-grid.container, .page-grid.container { width: 100%; max-width: 100%; margin: 0; padding-left: 16px; padding-right: 16px; }
+  .hero-grid, .page-grid { grid-template-columns: minmax(0, 1fr); padding-top: 58px; padding-bottom: 58px; }
+  .hero-grid > div:first-child, .page-grid > div:first-child { width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }
   .stats, .category-grid, .business-grid, .product-grid, .product-grid.three, .feature-grid, .admin-stats { grid-template-columns: 1fr; }
   .section-head, .listing-meta { align-items: flex-start; flex-direction: column; }
   .hero-actions { flex-direction: column; }
-  .primary-cta, .secondary-cta { width: 100%; }
+  .primary-cta, .secondary-cta { width: 100%; max-width: 100%; }
   .hero-media img, .page-grid img, .detail-image { height: 360px; border-radius: 30px; }
   .section, .design-grid { padding: 60px 0; }
   .form-shell, .page-copy-card, .subpage-cta { padding: 22px; border-radius: 24px; }
