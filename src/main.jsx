@@ -36,6 +36,18 @@ const businessCards = [
   ["Medical", "/business/medical", "Rehabilitation and active ageing movement environments.", "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=85"],
 ];
 
+const wellnessPillars = [
+  ["Precision Training", "Connected equipment and guided programs shaped around individual goals."],
+  ["Design at Home", "Premium layouts, quiet machines and refined finishes for private wellness rooms."],
+  ["Commercial Ecosystem", "Solutions for clubs, hotels, offices and medical fitness environments."],
+];
+
+const journalCards = [
+  ["The Wellness Company", "A lifestyle approach built around movement, nutrition and a positive mindset.", "/wellness"],
+  ["Design meets performance", "Equipment selected for premium spaces where engineering and interiors matter.", "/design"],
+  ["Connected fitness", "Digital services, product discovery and consultation support in one experience.", "/technogym-app"],
+];
+
 const megaMenus = {
   products: {
     eyebrow: "Products",
@@ -156,6 +168,10 @@ function Header({ cartCount, onSearch, onCart }) {
 
   return (
     <div className="nav-system" ref={navRef} onMouseLeave={() => setActiveMenu(null)}>
+      <div className="nav-announcement">
+        <span>The Wellness Company</span>
+        <span>Free consultation for home and business fitness spaces</span>
+      </div>
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
         <nav className="desktop-nav">
@@ -215,7 +231,7 @@ function Hero() {
     <section className="hero">
       <div className="hero-grid container">
         <div>
-          <p className="eyebrow chip">Premium wellness equipment redesigned for modern India</p>
+          <p className="eyebrow chip">Premium wellness equipment for modern India</p>
           <h1>A complete modern Technogym experience.</h1>
           <p className="hero-copy">Home gym, commercial fitness, product discovery, support, stories, and consultation in one refined experience.</p>
           <div className="hero-actions">
@@ -223,12 +239,12 @@ function Hero() {
             <Link to="/business" className="secondary-cta">Business solutions</Link>
           </div>
           <div className="stats">
-            <span><b>14+</b> Categories</span><span><b>12</b> Product pages</span><span><b>100%</b> Functional forms</span>
+            <span><b>14+</b> Equipment categories</span><span><b>Home</b> Design support</span><span><b>Pro</b> Business solutions</span>
           </div>
         </div>
         <div className="hero-media">
           <img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=1400&q=85" alt="Luxury home gym" />
-          <div className="caption"><small>Featured</small><b>Luxury Home Gym Setup</b></div>
+          <div className="caption"><small>Featured experience</small><b>Luxury Home Gym Setup</b><span>Equipment, space planning and consultation in one flow.</span></div>
         </div>
       </div>
     </section>
@@ -256,6 +272,20 @@ function Home({ categories, products, onAdd }) {
   return (
     <>
       <Hero />
+      <section className="ecosystem-band">
+        <div className="container ecosystem-grid">
+          <div>
+            <p className="eyebrow">Technogym ecosystem</p>
+            <h2>Wellness equipment, digital services and expert planning.</h2>
+          </div>
+          {wellnessPillars.map(([title, text]) => (
+            <article key={title} className="pillar-card">
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
       <section className="section container">
         <div className="section-head"><div><p className="eyebrow">Shop by category</p><h2>Every equipment category covered</h2></div><Link to="/category/all-products">View all categories</Link></div>
         <div className="category-grid">
@@ -278,6 +308,18 @@ function Home({ categories, products, onAdd }) {
           <div><p className="eyebrow dark">Design & room planner</p><h2>Plan a premium gym before buying equipment.</h2><p>Room planner, interior design, layout consultation and curated product selection.</p><Link to="/room-planner" className="dark-button">Open Room Planner</Link></div>
         </div>
       </section>
+      <section className="section container editorial-section">
+        <div className="section-head"><div><p className="eyebrow">Stories & services</p><h2>Designed around a complete wellness lifestyle</h2></div><Link to="/stories">Read stories</Link></div>
+        <div className="journal-grid">
+          {journalCards.map(([title, text, to]) => (
+            <Link key={title} to={to} className="journal-card">
+              <span>{title}</span>
+              <p>{text}</p>
+              <b>Explore <ArrowRight size={16} /></b>
+            </Link>
+          ))}
+        </div>
+      </section>
     </>
   );
 }
@@ -287,7 +329,7 @@ function Listing({ slug, categories, products, onAdd }) {
   const shown = selected ? products.filter((product) => product.category.toLowerCase().includes(selected.name.split(" ")[0].toLowerCase())) : products;
   return (
     <>
-      <PageHero title={selected?.name || "All exercise equipment"} eyebrow="Products" text={selected?.description || "Explore cardio, strength, accessories, room planning and commercial equipment in one redesigned listing."} image={selected?.image || categories[0]?.image} />
+      <PageHero title={selected?.name || "All exercise equipment"} eyebrow="Products" text={selected?.description || "Explore cardio, strength, accessories, room planning and commercial equipment in one curated listing."} image={selected?.image || categories[0]?.image} />
       <section className="listing container">
         <aside className="filter-panel"><h3>Categories</h3><Link to="/category/all-products">All Products</Link>{categories.map((item) => <Link key={item.slug} to={`/category/${item.slug}`}>{item.name}</Link>)}</aside>
         <main><div className="listing-meta"><p>{shown.length || products.length} products shown</p><select><option>Sort: Featured</option><option>Price: Low to High</option><option>Newest</option></select></div><div className="product-grid three">{(shown.length ? shown : products).map((product) => <ProductCard key={product.slug} product={product} onAdd={onAdd} />)}</div></main>
@@ -311,7 +353,19 @@ function ProductDetail({ slug, products, onAdd }) {
 }
 
 function PageHero({ eyebrow, title, text, image }) {
-  return <section className="page-hero"><div className="container page-grid"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{text}</p></div>{image && <img src={image} alt="" />}</div></section>;
+  return (
+    <section className="page-hero">
+      <div className="container page-grid">
+        <div className="page-copy-card">
+          <p className="eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p>{text}</p>
+          <div className="page-tags"><span>Equipment</span><span>Planning</span><span>Support</span></div>
+        </div>
+        {image && <img src={image} alt="" />}
+      </div>
+    </section>
+  );
 }
 
 function RequestForm({ mode, cart, onOrderComplete }) {
@@ -364,7 +418,7 @@ function GenericPage({ path, cart, onOrderComplete }) {
   const needsForm = key === "/contacts" || key === "/checkout";
   return (
     <>
-      <PageHero eyebrow="Technogym Redesign" title={data[0]} text={data[1]} image={data[2]} />
+      <PageHero eyebrow="Technogym" title={data[0]} text={data[1]} image={data[2]} />
       <section className="section container">
         {needsForm ? <div className="form-shell"><div><h2>{key === "/checkout" ? "Complete your request" : "Submit your request"}</h2><p>Share your details and the team will help with product selection, pricing, and next steps.</p></div><RequestForm mode={key === "/checkout" ? "checkout" : "inquiry"} cart={cart} onOrderComplete={onOrderComplete} /></div> : <div className="feature-grid">{["Premium planning", "Responsive service", "Guided consultation"].map((item) => <div className="feature-card" key={item}><h3>{item}</h3><p>Explore a focused section built around equipment discovery, service information, and consultation support.</p></div>)}</div>}
       </section>
@@ -486,7 +540,37 @@ function App() {
     <>
       <Header cartCount={cart.length} onSearch={() => setSearchOpen(true)} onCart={() => setCartOpen(true)} />
       {content}
-      <footer><div className="container footer-grid"><b>TECHNOGYM</b><p>A modern premium wellness experience for equipment discovery, planning, and consultation.</p><div className="footer-links"><Link to="/contacts">Contact</Link><Link to="/admin">Admin</Link></div></div></footer>
+      <footer className="site-footer">
+        <div className="container footer-layout">
+          <div className="footer-brand">
+            <b>TECHNOGYM</b>
+            <p>A modern premium wellness experience for equipment discovery, planning, and consultation.</p>
+            <Link to="/contacts" className="footer-cta">Book Consultation</Link>
+          </div>
+          <div className="footer-column">
+            <h3>Shop</h3>
+            <Link to="/category/all-products">All products</Link>
+            <Link to="/home-gym">Home gym</Link>
+            <Link to="/room-planner">Room planner</Link>
+          </div>
+          <div className="footer-column">
+            <h3>Business</h3>
+            <Link to="/business">Commercial solutions</Link>
+            <Link to="/business/hospitality">Hotels & resorts</Link>
+            <Link to="/business/medical">Medical & rehab</Link>
+          </div>
+          <div className="footer-column">
+            <h3>Support</h3>
+            <Link to="/support">Support home</Link>
+            <Link to="/technogym-app">Technogym app</Link>
+            <Link to="/admin">Admin</Link>
+          </div>
+        </div>
+        <div className="container footer-bottom">
+          <span>Premium wellness equipment, design planning and consultation.</span>
+          <span>Designed and developed by Rehan Raza</span>
+        </div>
+      </footer>
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} products={products} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} remove={(index) => setCart((items) => items.filter((_, itemIndex) => itemIndex !== index))} />
     </>
