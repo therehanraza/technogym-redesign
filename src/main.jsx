@@ -144,10 +144,17 @@ function Header({ cartCount, onSearch, onCart }) {
   ];
   const closeMobileMenu = () => {
     if (mobileMenuRef.current) {
-      mobileMenuRef.current.open = false;
+      mobileMenuRef.current.checked = false;
     }
     setActiveMenu(null);
   };
+  const mobileGroups = [
+    ["Products", [["All Products", "/category/all-products"], ["Treadmills", "/category/treadmills"], ["Bikes", "/category/exercise-bikes"], ["Free Weights", "/category/free-weights"]]],
+    ["Home Gym", [["Home Gym", "/home-gym"], ["Luxury Home Gym", "/luxury-home-gym"], ["Room Planner", "/room-planner"], ["Design at Technogym", "/design"]]],
+    ["Business", [["Business", "/business"], ["Commercial Equipment", "/business-equipment"], ["Fitness Clubs", "/business/health-clubs"], ["Hotels & Resorts", "/business/hospitality"]]],
+    ["Support", [["Support Home", "/support"], ["Technogym Care", "/technogym-care"], ["Technical Support", "/technical-support"], ["Contacts", "/contacts"]]],
+    ["Stories", [["Stories", "/stories"], ["Wellness", "/wellness"], ["Sustainability", "/sustainability"], ["Design", "/design"]]],
+  ];
 
   useEffect(() => {
     if (!activeMenu) return undefined;
@@ -198,24 +205,31 @@ function Header({ cartCount, onSearch, onCart }) {
           <Link to="/account" className="icon-button account-link" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
           <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
           <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
-          <details className="mobile-details-menu" ref={mobileMenuRef}>
-            <summary aria-label="Open mobile menu"><span>Menu</span><Menu size={18} /></summary>
+          <div className="mobile-menu-control">
+            <input id="mobile-menu-toggle" ref={mobileMenuRef} className="mobile-menu-toggle" type="checkbox" aria-label="Toggle mobile menu" />
+            <label htmlFor="mobile-menu-toggle" className="mobile-menu-trigger" onClick={() => setActiveMenu(null)}>
+              <span>Menu</span>
+              <Menu className="menu-icon" size={18} />
+              <X className="close-icon" size={18} />
+            </label>
             <div className="mobile-menu-panel" role="dialog" aria-label="Mobile navigation">
-              <button type="button" className="icon-button close" onClick={closeMobileMenu}><X /></button>
-              <div className="mobile-menu-brand">TECHNOGYM</div>
-              {links.map(([label, to]) => <Link key={label} to={to} onClick={closeMobileMenu}>{label}</Link>)}
+              <Link to="/" className="mobile-home-link" onClick={closeMobileMenu}>Home</Link>
+              {mobileGroups.map(([label, items]) => (
+                <details className="mobile-accordion" key={label}>
+                  <summary>{label}<ChevronDown size={17} /></summary>
+                  <div>
+                    {items.map(([itemLabel, to]) => <Link key={`${label}-${itemLabel}`} to={to} onClick={closeMobileMenu}>{itemLabel}</Link>)}
+                  </div>
+                </details>
+              ))}
               <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onSearch(); }}>Search products</button>
               <Link to="/account" onClick={closeMobileMenu}>My Account</Link>
               <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onCart(); }}>View selection ({cartCount})</button>
               <Link to="/contacts" className="primary-pill mobile-cta" onClick={closeMobileMenu}>Book Consultation</Link>
             </div>
-          </details>
+          </div>
         </div>
       </header>
-      <nav className="mobile-nav-strip" aria-label="Mobile quick navigation">
-        {links.map(([label, to]) => <Link key={`mobile-${label}`} to={to} onClick={closeMobileMenu}>{label}</Link>)}
-        <Link to="/contacts" onClick={closeMobileMenu}>Book</Link>
-      </nav>
         <div className={`mega-menu ${activeMegaMenu ? "is-open" : ""}`} aria-hidden={!activeMegaMenu}>
           <div className="mega-inner container">
             {activeMegaMenu && (
