@@ -131,14 +131,9 @@ function Link({ to, children, className = "", onClick }) {
 }
 
 function Header({ cartCount, onSearch, onCart }) {
-  const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const navRef = useRef(null);
-  const openMobileMenu = (event) => {
-    event?.preventDefault();
-    setActiveMenu(null);
-    setOpen(true);
-  };
+  const mobileMenuRef = useRef(null);
   const activeMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
   const links = [
     ["Products", "/category/all-products", "products"],
@@ -147,6 +142,12 @@ function Header({ cartCount, onSearch, onCart }) {
     ["Support", "/support", "support"],
     ["Stories", "/stories", "stories"],
   ];
+  const closeMobileMenu = () => {
+    if (mobileMenuRef.current) {
+      mobileMenuRef.current.open = false;
+    }
+    setActiveMenu(null);
+  };
 
   useEffect(() => {
     if (!activeMenu) return undefined;
@@ -197,19 +198,24 @@ function Header({ cartCount, onSearch, onCart }) {
           <Link to="/account" className="icon-button account-link" aria-label="Account" onClick={() => setActiveMenu(null)}><User /></Link>
           <button aria-label="Cart" className="icon-button cart-button" onClick={() => { setActiveMenu(null); onCart(); }}><ShoppingBag /><span>{cartCount}</span></button>
           <Link to="/contacts" className="primary-pill" onClick={() => setActiveMenu(null)}>Book Consultation</Link>
-          <button type="button" aria-label="Menu" aria-expanded={open} className="icon-button mobile-only" onTouchStart={openMobileMenu} onPointerDown={openMobileMenu} onClick={openMobileMenu}><Menu /></button>
+          <details className="mobile-details-menu" ref={mobileMenuRef}>
+            <summary aria-label="Open mobile menu"><span>Menu</span><Menu size={18} /></summary>
+            <div className="mobile-menu-panel" role="dialog" aria-label="Mobile navigation">
+              <button type="button" className="icon-button close" onClick={closeMobileMenu}><X /></button>
+              <div className="mobile-menu-brand">TECHNOGYM</div>
+              {links.map(([label, to]) => <Link key={label} to={to} onClick={closeMobileMenu}>{label}</Link>)}
+              <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onSearch(); }}>Search products</button>
+              <Link to="/account" onClick={closeMobileMenu}>My Account</Link>
+              <button type="button" className="mobile-action" onClick={() => { closeMobileMenu(); onCart(); }}>View selection ({cartCount})</button>
+              <Link to="/contacts" className="primary-pill mobile-cta" onClick={closeMobileMenu}>Book Consultation</Link>
+            </div>
+          </details>
         </div>
-        {open && (
-          <div className="mobile-menu" role="dialog" aria-label="Mobile navigation">
-            <button className="icon-button close" onClick={() => setOpen(false)}><X /></button>
-            {links.map(([label, to]) => <Link key={label} to={to} onClick={() => setOpen(false)}>{label}</Link>)}
-            <button className="mobile-action" onClick={() => { setOpen(false); onSearch(); }}>Search products</button>
-            <Link to="/account" onClick={() => setOpen(false)}>My Account</Link>
-            <button className="mobile-action" onClick={() => { setOpen(false); onCart(); }}>View selection ({cartCount})</button>
-            <Link to="/contacts" className="primary-pill mobile-cta" onClick={() => setOpen(false)}>Book Consultation</Link>
-          </div>
-        )}
       </header>
+      <nav className="mobile-nav-strip" aria-label="Mobile quick navigation">
+        {links.map(([label, to]) => <Link key={`mobile-${label}`} to={to} onClick={closeMobileMenu}>{label}</Link>)}
+        <Link to="/contacts" onClick={closeMobileMenu}>Book</Link>
+      </nav>
         <div className={`mega-menu ${activeMegaMenu ? "is-open" : ""}`} aria-hidden={!activeMegaMenu}>
           <div className="mega-inner container">
             {activeMegaMenu && (
