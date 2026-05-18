@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     PORT: int = 5000
     FRONTEND_URL: str = "http://localhost:5173"
     DATABASE_URL: str = "sqlite:///./data/technogym.db"
+    MONGODB_URI: str = ""
+    MONGODB_DB_NAME: str = "technogym_redesign"
 
     class Config:
         env_file = ".env"

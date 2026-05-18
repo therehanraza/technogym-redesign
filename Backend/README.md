@@ -1,6 +1,6 @@
 # Technogym FastAPI Backend
 
-Python backend for the Technogym redesign. It uses FastAPI and SQLite so the project can run locally and deploy on free hosting without paid services.
+Python backend for the Technogym redesign. It uses FastAPI with MongoDB Atlas for deployed persistent data, while keeping SQLite as a local fallback when `MONGODB_URI` is not configured.
 
 ## Run Locally
 
@@ -11,20 +11,24 @@ pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 5000 --reload
 ```
 
-The SQLite database is created and seeded automatically at startup.
-
 ## Environment
 
 Copy `.env.example` to `.env` and adjust values:
 
 ```env
 FRONTEND_URL=http://localhost:5173
-DATABASE_URL=sqlite:///./data/technogym.db
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/technogym_redesign?retryWrites=true&w=majority
+MONGODB_DB_NAME=technogym_redesign
 ```
+
+If `MONGODB_URI` is empty, the backend uses local SQLite at `data/technogym.db`.
 
 ## Endpoints
 
 - `GET /api/health`
+- `GET /api/navigation`
+- `GET /api/pages`
+- `GET /api/pages/{path}`
 - `GET /api/categories`
 - `GET /api/products`
 - `POST /api/inquiries`

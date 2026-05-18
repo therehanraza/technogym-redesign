@@ -29,6 +29,10 @@ const pageMap = {
   "/account": ["My Account", "Profile, orders, saved consultations and app-connected preferences.", "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1400&q=85"],
 };
 
+const defaultPages = Object.fromEntries(
+  Object.entries(pageMap).map(([path, [title, text, image]]) => [path, { path, title, text, image }])
+);
+
 const businessCards = [
   ["Health Clubs", "/business/health-clubs", "Premium fitness club layouts, cardio lines and strength zones.", "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=900&q=85"],
   ["Hospitality", "/business/hospitality", "Hotel wellness rooms and resort fitness experiences.", "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=900&q=85"],
@@ -118,6 +122,14 @@ const megaMenus = {
   },
 };
 
+const defaultNavigation = [
+  { key: "products", label: "Products", to: "/category/all-products", ...megaMenus.products },
+  { key: "home", label: "Home Gym", to: "/home-gym", ...megaMenus.home },
+  { key: "business", label: "Business", to: "/business", ...megaMenus.business },
+  { key: "support", label: "Support", to: "/support", ...megaMenus.support },
+  { key: "stories", label: "Stories", to: "/stories", ...megaMenus.stories },
+];
+
 function getPath() {
   return window.location.hash.replace("#", "") || "/";
 }
@@ -130,31 +142,20 @@ function Link({ to, children, className = "", onClick }) {
   );
 }
 
-function Header({ cartCount, onSearch, onCart }) {
+function Header({ cartCount, onSearch, onCart, navigation }) {
   const [activeMenu, setActiveMenu] = useState(null);
   const navRef = useRef(null);
   const mobileMenuRef = useRef(null);
-  const activeMegaMenu = activeMenu ? megaMenus[activeMenu] : null;
-  const links = [
-    ["Products", "/category/all-products", "products"],
-    ["Home Gym", "/home-gym", "home"],
-    ["Business", "/business", "business"],
-    ["Support", "/support", "support"],
-    ["Stories", "/stories", "stories"],
-  ];
+  const navigationItems = navigation?.length ? navigation : defaultNavigation;
+  const activeMegaMenu = activeMenu ? navigationItems.find((item) => item.key === activeMenu) : null;
+  const links = navigationItems.map((item) => [item.label, item.to, item.key]);
   const closeMobileMenu = () => {
     if (mobileMenuRef.current) {
       mobileMenuRef.current.checked = false;
     }
     setActiveMenu(null);
   };
-  const mobileGroups = [
-    ["Products", [["All Products", "/category/all-products"], ["Treadmills", "/category/treadmills"], ["Bikes", "/category/exercise-bikes"], ["Free Weights", "/category/free-weights"]]],
-    ["Home Gym", [["Home Gym", "/home-gym"], ["Luxury Home Gym", "/luxury-home-gym"], ["Room Planner", "/room-planner"], ["Design at Technogym", "/design"]]],
-    ["Business", [["Business", "/business"], ["Commercial Equipment", "/business-equipment"], ["Fitness Clubs", "/business/health-clubs"], ["Hotels & Resorts", "/business/hospitality"]]],
-    ["Support", [["Support Home", "/support"], ["Technogym Care", "/technogym-care"], ["Technical Support", "/technical-support"], ["Contacts", "/contacts"]]],
-    ["Stories", [["Stories", "/stories"], ["Wellness", "/wellness"], ["Sustainability", "/sustainability"], ["Design", "/design"]]],
-  ];
+  const mobileGroups = navigationItems.map((item) => [item.label, item.columns?.length ? item.columns : [[item.label, item.to]]]);
 
   useEffect(() => {
     if (!activeMenu) return undefined;
@@ -254,14 +255,15 @@ function Header({ cartCount, onSearch, onCart }) {
   );
 }
 
-function Hero() {
+function Hero({ page }) {
+  const heroPage = page || defaultPages["/"];
   return (
     <section className="hero">
       <div className="hero-grid container">
         <div>
-          <p className="eyebrow chip">Premium wellness equipment for modern India</p>
-          <h1>A complete modern Technogym experience.</h1>
-          <p className="hero-copy">Home gym, commercial fitness, product discovery, support, stories, and consultation in one refined experience.</p>
+          <p className="eyebrow chip">{heroPage.eyebrow || "Premium wellness equipment for modern India"}</p>
+          <h1>{heroPage.title}</h1>
+          <p className="hero-copy">{heroPage.text}</p>
           <div className="hero-actions">
             <Link to="/shop" className="primary-cta">Shop now <ArrowRight size={18} /></Link>
             <Link to="/business" className="secondary-cta">Business solutions</Link>
@@ -271,7 +273,7 @@ function Hero() {
           </div>
         </div>
         <div className="hero-media">
-          <img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=1400&q=85" alt="Luxury home gym" />
+          <img src={heroPage.image} alt="Luxury home gym" />
           <div className="caption"><small>Featured experience</small><b>Luxury Home Gym Setup</b><span>Equipment, space planning and consultation in one flow.</span></div>
         </div>
       </div>
@@ -296,10 +298,10 @@ function ProductCard({ product, onAdd }) {
   );
 }
 
-function Home({ categories, products, onAdd }) {
+function Home({ categories, products, onAdd, page }) {
   return (
     <>
-      <Hero />
+      <Hero page={page} />
       <section className="ecosystem-band">
         <div className="container ecosystem-grid">
           <div>
@@ -440,11 +442,14 @@ function RequestForm({ mode, cart, onOrderComplete }) {
   );
 }
 
-function GenericPage({ path, cart, onOrderComplete }) {
+function GenericPage({ path, cart, onOrderComplete, pages }) {
   const key = path.startsWith("/stories/") ? "/stories" : path;
-  const data = pageMap[key] || ["Wellness Experience", "Explore curated equipment, services, and support for a more complete training space.", "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1400&q=85"];
+  const fallbackPage = pageMap[key]
+    ? defaultPages[key]
+    : { title: "Wellness Experience", text: "Explore curated equipment, services, and support for a more complete training space.", image: "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1400&q=85" };
+  const data = pages?.[key] || fallbackPage;
   const needsForm = key === "/contacts" || key === "/checkout";
-  const sectionTitle = key === "/support" ? "Support built around your equipment" : key === "/business" ? "Professional wellness spaces with measurable impact" : key === "/home-gym" ? "A personal gym designed around your lifestyle" : key === "/stories" ? "Wellness thinking for better movement" : "A complete path from discovery to consultation";
+  const sectionTitle = data.sectionTitle || (key === "/support" ? "Support built around your equipment" : key === "/business" ? "Professional wellness spaces with measurable impact" : key === "/home-gym" ? "A personal gym designed around your lifestyle" : key === "/stories" ? "Wellness thinking for better movement" : "A complete path from discovery to consultation");
   const pageContent = {
     "/home-gym": {
       cards: [
@@ -479,16 +484,16 @@ function GenericPage({ path, cart, onOrderComplete }) {
       highlights: ["Wellness", "Design", "Performance", "Sustainability"],
     },
   };
-  const serviceCards = pageContent[key]?.cards || [
+  const serviceCards = data.cards || pageContent[key]?.cards || [
     ["Discover", "Browse equipment, wellness categories and solution paths based on your space and goals."],
     ["Plan", "Compare home, business, support and design options before sending your request."],
     ["Consult", "Submit a guided request so the next step is clear, practical and easy to follow."],
   ];
-  const highlights = pageContent[key]?.highlights || ["Equipment selection", "Space planning", "Consultation", "Support"];
+  const highlights = data.highlights || pageContent[key]?.highlights || ["Equipment selection", "Space planning", "Consultation", "Support"];
   const processSteps = ["Select equipment or service area", "Share room, business or support details", "Receive next-step guidance from the team"];
   return (
     <>
-      <PageHero eyebrow="Technogym" title={data[0]} text={data[1]} image={data[2]} />
+      <PageHero eyebrow="Technogym" title={data.title} text={data.text} image={data.image} />
       <section className="section container">
         {needsForm ? (
           <div className="form-shell enhanced-form">
@@ -612,6 +617,8 @@ function App() {
   const [path, setPath] = useState(getPath());
   const [categories, setCategories] = useState(fallbackCategories);
   const [products, setProducts] = useState(fallbackProducts);
+  const [navigation, setNavigation] = useState(defaultNavigation);
+  const [pages, setPages] = useState(defaultPages);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState([]);
@@ -623,26 +630,29 @@ function App() {
   }, []);
 
   useEffect(() => {
-    Promise.all([api.getCategories(), api.getProducts()])
-      .then(([catRes, prodRes]) => {
-        if (catRes?.data?.length) setCategories(catRes.data);
-        if (prodRes?.data?.length) setProducts(prodRes.data);
-      })
-      .catch(() => {});
+    Promise.allSettled([api.getCategories(), api.getProducts(), api.getNavigation(), api.getPages()])
+      .then(([catRes, prodRes, navRes, pageRes]) => {
+        if (catRes.status === "fulfilled" && catRes.value?.data?.length) setCategories(catRes.value.data);
+        if (prodRes.status === "fulfilled" && prodRes.value?.data?.length) setProducts(prodRes.value.data);
+        if (navRes.status === "fulfilled" && navRes.value?.data?.length) setNavigation(navRes.value.data);
+        if (pageRes.status === "fulfilled" && pageRes.value?.data?.length) {
+          setPages(Object.fromEntries(pageRes.value.data.map((page) => [page.path, page])));
+        }
+      });
   }, []);
 
   const content = useMemo(() => {
-    if (path === "/") return <Home categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
+    if (path === "/") return <Home page={pages["/"]} categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
     if (path === "/category/all-products") return <Listing categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
     if (path.startsWith("/category/")) return <Listing slug={path.split("/").pop()} categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
     if (path.startsWith("/product/")) return <ProductDetail slug={path.split("/").pop()} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
     if (path === "/admin") return <AdminDashboard />;
-    return <GenericPage path={path} cart={cart} onOrderComplete={() => setCart([])} />;
-  }, [path, categories, products, cart]);
+    return <GenericPage path={path} pages={pages} cart={cart} onOrderComplete={() => setCart([])} />;
+  }, [path, categories, products, pages, cart]);
 
   return (
     <>
-      <Header cartCount={cart.length} onSearch={() => setSearchOpen(true)} onCart={() => setCartOpen(true)} />
+      <Header navigation={navigation} cartCount={cart.length} onSearch={() => setSearchOpen(true)} onCart={() => setCartOpen(true)} />
       {content}
       <footer className="site-footer">
         <div className="container footer-layout">

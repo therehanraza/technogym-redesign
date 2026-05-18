@@ -22,6 +22,8 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  getNavigation: () => request("/navigation"),
+  getPages: () => request("/pages"),
   getCategories: () => request("/categories"),
   getProducts: () => request("/products"),
   getInquiries: () => request("/inquiries"),

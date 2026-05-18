@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.db.sqlite import init_db
+from app.db.store import init_storage, using_mongo
 from app.routes.category_routes import router as category_router
+from app.routes.content_routes import router as content_router
 from app.routes.product_routes import router as product_router
 from app.routes.inquiry_routes import router as inquiry_router
 from app.routes.order_routes import router as order_router
@@ -33,18 +34,20 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_event():
-    init_db()
+    init_storage()
 
 
 @app.get("/api/health", tags=["Health"])
 def health_check():
     return {
         "success": True,
-        "message": "Technogym Python backend is running"
+        "message": "Technogym Python backend is running",
+        "database": "mongodb" if using_mongo() else "sqlite"
     }
 
 
 app.include_router(category_router, prefix="/api")
+app.include_router(content_router, prefix="/api")
 app.include_router(product_router, prefix="/api")
 app.include_router(inquiry_router, prefix="/api")
 app.include_router(order_router, prefix="/api")

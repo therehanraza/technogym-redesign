@@ -13,7 +13,7 @@ This project reimagines Technogym's shopping, consultation, product discovery, b
 ## Tech Stack
 
 - Frontend: React, Vite, CSS, lucide-react
-- Backend: Python, FastAPI, SQLite
+- Backend: Python, FastAPI, MongoDB Atlas, SQLite fallback
 - Deployment: Vercel or Netlify for frontend, Render free tier for backend
 
 ## Features
@@ -24,7 +24,7 @@ This project reimagines Technogym's shopping, consultation, product discovery, b
 - Functional checkout/order request API
 - Admin dashboard for inquiries and checkout requests
 - Backend validation with Pydantic
-- SQLite database with starter catalog data
+- MongoDB Atlas-ready storage for catalog, navigation, pages, inquiries, and orders
 - GitHub-ready `.gitignore` and deployment config files
 
 ## Frontend Setup
@@ -79,12 +79,17 @@ HOST=0.0.0.0
 PORT=5000
 FRONTEND_URL=http://localhost:5173
 DATABASE_URL=sqlite:///./data/technogym.db
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/technogym_redesign?retryWrites=true&w=majority
+MONGODB_DB_NAME=technogym_redesign
 ```
 
 ## API Endpoints
 
 ```http
 GET  /api/health
+GET  /api/navigation
+GET  /api/pages
+GET  /api/pages/{path}
 GET  /api/categories
 GET  /api/categories/{slug}
 GET  /api/products
@@ -109,6 +114,8 @@ Backend free option:
 
 - Render: create a Web Service from the repo using `render.yaml`, root directory `Backend`, start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 - Set `FRONTEND_URL` to the deployed frontend URL.
+- Set `MONGODB_URI` to the MongoDB Atlas connection string.
+- Set `MONGODB_DB_NAME` to `technogym_redesign`.
 
 Deployment links:
 
@@ -140,7 +147,6 @@ Deployment links:
 
 ## Future Improvements
 
-- Persistent hosted database such as Neon, Supabase, or MongoDB Atlas free tier
 - Role-based authentication for account, admin, and order history
 - Product image management
 - Email notifications for new inquiries
