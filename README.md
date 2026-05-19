@@ -87,7 +87,9 @@ MONGODB_DB_NAME=technogym_redesign
 
 ```http
 GET  /api/health
+GET  /api/site
 GET  /api/navigation
+GET  /api/page?path=/
 GET  /api/pages
 GET  /api/pages/{path}
 GET  /api/categories

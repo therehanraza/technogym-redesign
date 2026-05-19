@@ -26,11 +26,15 @@ If `MONGODB_URI` is empty, the backend uses local SQLite at `data/technogym.db`.
 ## Endpoints
 
 - `GET /api/health`
+- `GET /api/site`
 - `GET /api/navigation`
+- `GET /api/page?path=/`
 - `GET /api/pages`
 - `GET /api/pages/{path}`
 - `GET /api/categories`
+- `GET /api/categories/{slug}`
 - `GET /api/products`
+- `GET /api/products/{slug}`
 - `POST /api/inquiries`
 - `POST /api/orders`
 
