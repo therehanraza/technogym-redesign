@@ -395,6 +395,37 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 .form-error { background: rgba(239,68,68,.12); color: #fecaca; }
 .form-success { background: rgba(34,197,94,.12); color: #bbf7d0; }
 .primary-cta:disabled { opacity: .65; cursor: not-allowed; }
+.page-state {
+  min-height: 56vh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 18px;
+  text-align: center;
+}
+.page-state h2 { margin: 0; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; }
+.page-state p { max-width: 560px; margin: 0; color: var(--muted); line-height: 1.7; }
+.loading-mark {
+  width: 54px;
+  height: 54px;
+  border: 3px solid rgba(255,255,255,.14);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .85s linear infinite;
+}
+.inline-state {
+  grid-column: 1 / -1;
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  color: var(--muted);
+  background: rgba(255,255,255,.04);
+  padding: 24px;
+}
+.empty-copy { margin: 0; border: 1px solid var(--line); border-radius: 20px; padding: 22px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .admin-shell { display: grid; gap: 28px; }
 .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .admin-stats div, .admin-panel { background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); border-radius: 24px; padding: 22px; }
@@ -658,7 +689,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
   .nav-system, .site-header, .hero, .page-hero, .section, .design-band, .site-footer { width: 100%; max-width: 100vw; overflow-x: hidden; }
   .brand { font-size: 16px; letter-spacing: .16em; }
   .site-header { gap: 8px; padding: 0 14px; }
-  .header-actions { display: block; width: auto; flex: 0 0 auto; }
+  .header-actions { display: block; width: auto; flex: 0 0 auto; margin-left: auto; }
   .header-actions > :not(.mobile-menu-control) { display: none !important; }
   .header-actions .icon-button[aria-label="Search"] { display: none !important; }
   .account-link { display: none; }
@@ -670,7 +701,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
   .hero h1, .page-hero h1, .detail-copy h1 { max-width: 100%; font-size: 31px; line-height: 1.08; overflow-wrap: anywhere; margin: 26px 0 16px; }
   .hero-copy, .page-hero p, .detail-copy p { max-width: 100%; font-size: 16px; overflow-wrap: anywhere; }
   .hero-copy, .page-copy, .hero-grid, .page-grid { width: 100%; max-width: 100%; }
-  .hero-grid.container, .page-grid.container { width: 100%; max-width: 100%; margin: 0; padding-left: 18px; padding-right: 18px; }
+  .hero-grid.container, .page-grid.container { width: calc(100% - 36px); max-width: calc(100% - 36px); margin: 0 auto; padding-left: 0; padding-right: 0; }
   .hero-grid, .page-grid { grid-template-columns: minmax(0, 1fr); gap: 30px; padding-top: 44px; padding-bottom: 54px; }
   .hero-grid > div:first-child, .page-grid > div:first-child { width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }
   .category-grid, .business-grid, .product-grid, .product-grid.three, .feature-grid, .admin-stats { grid-template-columns: 1fr; }

@@ -338,37 +338,43 @@ def _seed_mongo(db):
     db.pages.create_index([("path", ASCENDING)], unique=True)
     db.navigation.create_index([("key", ASCENDING)], unique=True)
 
-    if db.categories.count_documents({}) == 0:
-        db.categories.insert_many([
+    for name, slug, description, image in sqlite.categories:
+        db.categories.update_one(
+            {"slug": slug},
             {
-                "name": name,
-                "slug": slug,
-                "description": description,
-                "image": image,
-                "isActive": True,
-                "createdAt": _now(),
-            }
-            for name, slug, description, image in sqlite.categories
-        ])
-    if db.products.count_documents({}) == 0:
-        db.products.insert_many([
+                "$setOnInsert": {"createdAt": _now()},
+                "$set": {
+                    "name": name,
+                    "slug": slug,
+                    "description": description,
+                    "image": image,
+                    "isActive": True,
+                },
+            },
+            upsert=True,
+        )
+    for name, slug, category, price, numeric_price, tag, description, short_description, image, specs, is_featured in sqlite.products:
+        db.products.update_one(
+            {"slug": slug},
             {
-                "name": name,
-                "slug": slug,
-                "category": category,
-                "price": price,
-                "numericPrice": numeric_price,
-                "tag": tag,
-                "description": description,
-                "shortDescription": short_description,
-                "image": image,
-                "specs": specs,
-                "isFeatured": bool(is_featured),
-                "isActive": True,
-                "createdAt": _now(),
-            }
-            for name, slug, category, price, numeric_price, tag, description, short_description, image, specs, is_featured in sqlite.products
-        ])
+                "$setOnInsert": {
+                    "name": name,
+                    "slug": slug,
+                    "category": category,
+                    "price": price,
+                    "numericPrice": numeric_price,
+                    "tag": tag,
+                    "description": description,
+                    "shortDescription": short_description,
+                    "image": image,
+                    "specs": specs,
+                    "isFeatured": bool(is_featured),
+                    "isActive": True,
+                    "createdAt": _now(),
+                }
+            },
+            upsert=True,
+        )
     for item in DEFAULT_NAVIGATION:
         db.navigation.update_one(
             {"key": item["key"]},

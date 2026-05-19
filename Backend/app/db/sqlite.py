@@ -30,7 +30,9 @@ categories = [
     ("Bikes", "exercise-bikes", "Connected cycling, ride classes and indoor endurance.", "https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?auto=format&fit=crop&w=1000&q=85"),
     ("Ellipticals", "ellipticals", "Low impact cardio with immersive digital programs.", "https://images.unsplash.com/photo-1571019613914-85f342c6a11e?auto=format&fit=crop&w=1000&q=85"),
     ("Rower", "rower", "Total body rowing experience for performance users.", "https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=1000&q=85"),
+    ("Stair Climbers", "stair-climbers", "High intensity climbing machines for gyms and clubs.", "https://images.unsplash.com/photo-1570829460005-c840387bb1ca?auto=format&fit=crop&w=1000&q=85"),
     ("Multi Gyms", "multi-gyms", "Compact full body strength stations.", "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1000&q=85"),
+    ("Free Weights", "free-weights", "Premium dumbbells, kettlebells, barbells and plates.", "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1000&q=85"),
     ("Benches", "benches", "Stable workout benches for every strength setup.", "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=85"),
 ]
 
@@ -41,8 +43,10 @@ products = [
     ("Technogym Bike", "technogym-bike", "Bikes", "INR 4,25,000", 425000, "Connected", "Premium indoor bike with immersive training and sleek home form factor.", "Premium indoor bike.", "https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?auto=format&fit=crop&w=1200&q=85", ["Live workouts", "Silent resistance", "Compact design", "Connected console"], 1),
     ("Technogym Ride", "technogym-ride", "Bikes", "INR 5,25,000", 525000, "Cyclist choice", "Indoor cycling platform built for serious riders and data-led training.", "Indoor cycling platform.", "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=85", ["Road feel", "Training metrics", "Smart resistance", "Compact footprint"], 1),
     ("Skillrow", "skillrow", "Rower", "INR 4,80,000", 480000, "Full body", "Athletic rowing machine for endurance, strength and total body training.", "Full body rowing machine.", "https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=1200&q=85", ["Aquafeel resistance", "Power training", "Compact frame", "Team workouts"], 1),
+    ("Artis Climb", "artis-climb", "Stair Climbers", "Request price", 0, "Performance", "High intensity stair climbing machine for premium cardio zones and clubs.", "Premium stair climber.", "https://images.unsplash.com/photo-1570829460005-c840387bb1ca?auto=format&fit=crop&w=1200&q=85", ["Climbing cardio", "Commercial frame", "Small footprint", "Interval training"], 1),
     ("Technogym Bench", "technogym-bench", "Benches", "INR 1,65,000", 165000, "Home gym essential", "Compact bench with hidden tools for complete functional home training.", "Compact workout bench.", "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1200&q=85", ["Integrated tools", "Small footprint", "Full body workouts", "Designer finish"], 1),
     ("Unica Strength", "unica-strength", "Multi Gyms", "INR 7,40,000", 740000, "Strength station", "All-in-one strength station for private homes and premium wellness rooms.", "All-in-one strength station.", "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1200&q=85", ["Complete strength", "Luxury finish", "Guided movement", "Small footprint"], 1),
+    ("Technogym Free Weights", "technogym-free-weights", "Free Weights", "Request price", 0, "Strength essentials", "Premium dumbbells, kettlebells, barbells and plates for home or business strength zones.", "Premium free weights.", "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1200&q=85", ["Dumbbells", "Kettlebells", "Barbells and plates", "Commercial durability"], 1),
 ]
 
 
@@ -98,21 +102,19 @@ def init_db():
             """
         )
 
-        if conn.execute("SELECT COUNT(*) FROM categories").fetchone()[0] == 0:
-            conn.executemany(
-                "INSERT INTO categories (name, slug, description, image) VALUES (?, ?, ?, ?)",
-                categories,
-            )
+        conn.executemany(
+            "INSERT OR IGNORE INTO categories (name, slug, description, image) VALUES (?, ?, ?, ?)",
+            categories,
+        )
 
-        if conn.execute("SELECT COUNT(*) FROM products").fetchone()[0] == 0:
-            conn.executemany(
-                """
-                INSERT INTO products
-                (name, slug, category, price, numericPrice, tag, description, shortDescription, image, specs, isFeatured)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                [(*item[:-2], json.dumps(item[-2]), item[-1]) for item in products],
-            )
+        conn.executemany(
+            """
+            INSERT OR IGNORE INTO products
+            (name, slug, category, price, numericPrice, tag, description, shortDescription, image, specs, isFeatured)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [(*item[:-2], json.dumps(item[-2]), item[-1]) for item in products],
+        )
 
 
 def row_to_dict(row):

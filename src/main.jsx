@@ -13,7 +13,6 @@ import {
   X,
 } from "lucide-react";
 import { api } from "./api";
-import { fallbackCategories, fallbackProducts } from "./data";
 import "./styles.css";
 
 const pageMap = {
@@ -139,6 +138,32 @@ function Link({ to, children, className = "", onClick }) {
     <a href={`#${to}`} className={className} onClick={onClick}>
       {children}
     </a>
+  );
+}
+
+function getBackendPagePath(path) {
+  if (path === "/") return "/";
+  if (path.startsWith("/category/") || path.startsWith("/product/") || path === "/admin") return null;
+  return path.startsWith("/stories/") ? "/stories" : path;
+}
+
+function LoadingState({ title = "Loading content", text = "Fetching the latest website data from the backend." }) {
+  return (
+    <section className="section container page-state">
+      <div className="loading-mark" aria-hidden="true" />
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </section>
+  );
+}
+
+function ErrorState({ title = "Content could not load", text, onRetry }) {
+  return (
+    <section className="section container page-state">
+      <h2>{title}</h2>
+      <p>{text || "The backend did not return the required data. Please try again."}</p>
+      {onRetry && <button type="button" className="primary-cta" onClick={onRetry}>Retry</button>}
+    </section>
   );
 }
 
@@ -298,7 +323,7 @@ function ProductCard({ product, onAdd }) {
   );
 }
 
-function Home({ categories, products, onAdd, page }) {
+function Home({ categories, products, onAdd, page, loading }) {
   return (
     <>
       <Hero page={page} />
@@ -319,13 +344,13 @@ function Home({ categories, products, onAdd, page }) {
       <section className="section container">
         <div className="section-head"><div><p className="eyebrow">Shop by category</p><h2>Every equipment category covered</h2></div><Link to="/category/all-products">View all categories</Link></div>
         <div className="category-grid">
-          {categories.slice(0, 8).map((item) => <Link key={item.slug} to={`/category/${item.slug}`} className="category-card"><img src={item.image} alt="" /><h3>{item.name}</h3><p>{item.description}</p></Link>)}
+          {categories.length ? categories.slice(0, 8).map((item) => <Link key={item.slug} to={`/category/${item.slug}`} className="category-card"><img src={item.image} alt="" /><h3>{item.name}</h3><p>{item.description}</p></Link>) : <div className="inline-state">{loading ? "Loading backend categories..." : "No backend categories found."}</div>}
         </div>
       </section>
       <section className="section dark-band">
         <div className="container">
           <div className="center-head"><p className="eyebrow">Featured Products</p><h2>Premium product showcase</h2></div>
-          <div className="product-grid">{products.slice(0, 8).map((product) => <ProductCard key={product.slug} product={product} onAdd={onAdd} />)}</div>
+          <div className="product-grid">{products.length ? products.slice(0, 8).map((product) => <ProductCard key={product.slug} product={product} onAdd={onAdd} />) : <div className="inline-state">{loading ? "Loading backend products..." : "No backend products found."}</div>}</div>
         </div>
       </section>
       <section className="section container">
@@ -354,22 +379,46 @@ function Home({ categories, products, onAdd, page }) {
   );
 }
 
-function Listing({ slug, categories, products, onAdd }) {
-  const selected = categories.find((item) => item.slug === slug);
-  const shown = selected ? products.filter((product) => product.category.toLowerCase().includes(selected.name.split(" ")[0].toLowerCase())) : products;
+function Listing({ slug, categories, products, onAdd, category, loading, error, onRetry }) {
+  const selected = category || categories.find((item) => item.slug === slug);
+  const shown = products;
+  if (loading) {
+    return (
+      <>
+        <PageHero title={selected?.name || "All exercise equipment"} eyebrow="Products" text="Loading the latest product catalogue from the backend." image={selected?.image || categories[0]?.image} />
+        <LoadingState title="Loading products" text="Fetching product and category records from the backend." />
+      </>
+    );
+  }
+  if (error) {
+    return (
+      <>
+        <PageHero title={selected?.name || "Products"} eyebrow="Products" text="The product catalogue is served by the backend." image={selected?.image || categories[0]?.image} />
+        <ErrorState text={error} onRetry={onRetry} />
+      </>
+    );
+  }
   return (
     <>
       <PageHero title={selected?.name || "All exercise equipment"} eyebrow="Products" text={selected?.description || "Explore cardio, strength, accessories, room planning and commercial equipment in one curated listing."} image={selected?.image || categories[0]?.image} />
       <section className="listing container">
         <aside className="filter-panel"><h3>Categories</h3><Link to="/category/all-products">All Products</Link>{categories.map((item) => <Link key={item.slug} to={`/category/${item.slug}`}>{item.name}</Link>)}</aside>
-        <main><div className="listing-meta"><p>{shown.length || products.length} products shown</p><select><option>Sort: Featured</option><option>Price: Low to High</option><option>Newest</option></select></div><div className="product-grid three">{(shown.length ? shown : products).map((product) => <ProductCard key={product.slug} product={product} onAdd={onAdd} />)}</div></main>
+        <main>
+          <div className="listing-meta"><p>{shown.length} products shown</p><select><option>Sort: Featured</option><option>Price: Low to High</option><option>Newest</option></select></div>
+          {shown.length === 0 ? <p className="muted empty-copy">No products are available for this backend category yet.</p> : <div className="product-grid three">{shown.map((product) => <ProductCard key={product.slug} product={product} onAdd={onAdd} />)}</div>}
+        </main>
       </section>
     </>
   );
 }
 
-function ProductDetail({ slug, products, onAdd }) {
-  const product = products.find((item) => item.slug === slug) || products[0];
+function ProductDetail({ product, products, onAdd, loading, error, onRetry }) {
+  if (loading) {
+    return <LoadingState title="Loading product" text="Fetching this product record from the backend." />;
+  }
+  if (error || !product) {
+    return <ErrorState title="Product not found" text={error || "The backend did not return this product."} onRetry={onRetry} />;
+  }
   const related = products.filter((item) => item.slug !== product.slug).slice(0, 3);
   return (
     <>
@@ -442,12 +491,18 @@ function RequestForm({ mode, cart, onOrderComplete }) {
   );
 }
 
-function GenericPage({ path, cart, onOrderComplete, pages }) {
+function GenericPage({ path, cart, onOrderComplete, pages, loading, error, onRetry }) {
   const key = path.startsWith("/stories/") ? "/stories" : path;
-  const fallbackPage = pageMap[key]
-    ? defaultPages[key]
-    : { title: "Wellness Experience", text: "Explore curated equipment, services, and support for a more complete training space.", image: "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1400&q=85" };
-  const data = pages?.[key] || fallbackPage;
+  const data = pages?.[key];
+  if (loading && !data) {
+    return <LoadingState title="Loading page" text="Fetching this page from the backend content API." />;
+  }
+  if (error && !data) {
+    return <ErrorState text={error} onRetry={onRetry} />;
+  }
+  if (!data) {
+    return <ErrorState title="Page not found" text="This route does not have a backend page record yet." onRetry={onRetry} />;
+  }
   const needsForm = key === "/contacts" || key === "/checkout";
   const sectionTitle = data.sectionTitle || (key === "/support" ? "Support built around your equipment" : key === "/business" ? "Professional wellness spaces with measurable impact" : key === "/home-gym" ? "A personal gym designed around your lifestyle" : key === "/stories" ? "Wellness thinking for better movement" : "A complete path from discovery to consultation");
   const pageContent = {
@@ -615,10 +670,14 @@ function CartDrawer({ open, onClose, cart, remove }) {
 
 function App() {
   const [path, setPath] = useState(getPath());
-  const [categories, setCategories] = useState(fallbackCategories);
-  const [products, setProducts] = useState(fallbackProducts);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [navigation, setNavigation] = useState(defaultNavigation);
-  const [pages, setPages] = useState(defaultPages);
+  const [pages, setPages] = useState({});
+  const [siteStatus, setSiteStatus] = useState({ loading: true, error: "", database: "" });
+  const [pageStatus, setPageStatus] = useState({ loading: true, error: "" });
+  const [listingState, setListingState] = useState({ loading: false, error: "", category: null, products: [] });
+  const [productState, setProductState] = useState({ loading: false, error: "", product: null });
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState([]);
@@ -629,26 +688,110 @@ function App() {
     return () => window.removeEventListener("hashchange", sync);
   }, []);
 
-  useEffect(() => {
-    Promise.allSettled([api.getCategories(), api.getProducts(), api.getNavigation(), api.getPages()])
-      .then(([catRes, prodRes, navRes, pageRes]) => {
+  const loadSiteData = () => {
+    setSiteStatus((current) => ({ ...current, loading: true, error: "" }));
+    api.getSite()
+      .then((response) => {
+        const data = response?.data || {};
+        if (data.navigation?.length) setNavigation(data.navigation);
+        if (data.categories?.length) setCategories(data.categories);
+        if (data.products?.length) setProducts(data.products);
+        if (data.pages?.length) setPages(Object.fromEntries(data.pages.map((page) => [page.path, page])));
+        setSiteStatus({ loading: false, error: "", database: "" });
+      })
+      .catch(async () => {
+        const [catRes, prodRes, navRes, pageRes, healthRes] = await Promise.allSettled([
+          api.getCategories(),
+          api.getProducts(),
+          api.getNavigation(),
+          api.getPages(),
+          api.getHealth(),
+        ]);
         if (catRes.status === "fulfilled" && catRes.value?.data?.length) setCategories(catRes.value.data);
         if (prodRes.status === "fulfilled" && prodRes.value?.data?.length) setProducts(prodRes.value.data);
         if (navRes.status === "fulfilled" && navRes.value?.data?.length) setNavigation(navRes.value.data);
         if (pageRes.status === "fulfilled" && pageRes.value?.data?.length) {
           setPages(Object.fromEntries(pageRes.value.data.map((page) => [page.path, page])));
         }
+        const failed = [catRes, prodRes, navRes, pageRes].filter((result) => result.status === "rejected").length;
+        setSiteStatus({
+          loading: false,
+          error: failed === 4 ? "Backend content APIs are not responding yet." : "",
+          database: healthRes.status === "fulfilled" ? healthRes.value?.database || "" : "",
+        });
       });
+  };
+
+  const loadCurrentPage = () => {
+    const pagePath = getBackendPagePath(path);
+    if (!pagePath) {
+      setPageStatus({ loading: false, error: "" });
+      return;
+    }
+    setPageStatus({ loading: true, error: "" });
+    api.getPage(pagePath)
+      .then((response) => {
+        if (response?.data) {
+          setPages((current) => ({ ...current, [response.data.path]: response.data }));
+        }
+        setPageStatus({ loading: false, error: "" });
+      })
+      .catch((error) => {
+        setPageStatus({ loading: false, error: error.message });
+      });
+  };
+
+  const loadListing = () => {
+    if (!path.startsWith("/category/")) return;
+    const slug = path.split("/").pop();
+    setListingState((current) => ({ ...current, loading: true, error: "" }));
+    if (slug === "all-products") {
+      api.getProducts()
+        .then((response) => setListingState({ loading: false, error: "", category: null, products: response?.data || [] }))
+        .catch((error) => setListingState({ loading: false, error: error.message, category: null, products: [] }));
+      return;
+    }
+    api.getCategory(slug)
+      .then(async (categoryResponse) => {
+        const category = categoryResponse?.data || null;
+        const productResponse = await api.getProducts({ category: category?.name || slug });
+        setListingState({ loading: false, error: "", category, products: productResponse?.data || [] });
+      })
+      .catch((error) => setListingState({ loading: false, error: error.message, category: null, products: [] }));
+  };
+
+  const loadProduct = () => {
+    if (!path.startsWith("/product/")) return;
+    const slug = path.split("/").pop();
+    setProductState({ loading: true, error: "", product: null });
+    api.getProduct(slug)
+      .then((response) => setProductState({ loading: false, error: "", product: response?.data || null }))
+      .catch((error) => setProductState({ loading: false, error: error.message, product: null }));
+  };
+
+  useEffect(() => {
+    loadSiteData();
   }, []);
 
+  useEffect(() => {
+    loadCurrentPage();
+    loadListing();
+    loadProduct();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [path]);
+
   const content = useMemo(() => {
-    if (path === "/") return <Home page={pages["/"]} categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
-    if (path === "/category/all-products") return <Listing categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
-    if (path.startsWith("/category/")) return <Listing slug={path.split("/").pop()} categories={categories} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
-    if (path.startsWith("/product/")) return <ProductDetail slug={path.split("/").pop()} products={products} onAdd={(item) => { setCart((current) => [...current, item]); setCartOpen(true); }} />;
+    const addProduct = (item) => { setCart((current) => [...current, item]); setCartOpen(true); };
+    if (siteStatus.error && !categories.length && !products.length) return <ErrorState text={siteStatus.error} onRetry={loadSiteData} />;
+    if (path === "/" && pageStatus.loading && !pages["/"]) return <LoadingState title="Loading homepage" text="Fetching homepage content from the backend." />;
+    if (path === "/" && pageStatus.error && !pages["/"]) return <ErrorState text={pageStatus.error} onRetry={loadCurrentPage} />;
+    if (path === "/") return <Home page={pages["/"]} categories={categories} products={products} loading={siteStatus.loading} onAdd={addProduct} />;
+    if (path === "/category/all-products") return <Listing categories={categories} products={listingState.products.length ? listingState.products : products} loading={listingState.loading || (siteStatus.loading && !products.length)} error={listingState.error} onRetry={loadListing} onAdd={addProduct} />;
+    if (path.startsWith("/category/")) return <Listing slug={path.split("/").pop()} category={listingState.category} categories={categories} products={listingState.products} loading={listingState.loading} error={listingState.error} onRetry={loadListing} onAdd={addProduct} />;
+    if (path.startsWith("/product/")) return <ProductDetail product={productState.product} products={products} loading={productState.loading} error={productState.error} onRetry={loadProduct} onAdd={addProduct} />;
     if (path === "/admin") return <AdminDashboard />;
-    return <GenericPage path={path} pages={pages} cart={cart} onOrderComplete={() => setCart([])} />;
-  }, [path, categories, products, pages, cart]);
+    return <GenericPage path={path} pages={pages} loading={pageStatus.loading} error={pageStatus.error} onRetry={loadCurrentPage} cart={cart} onOrderComplete={() => setCart([])} />;
+  }, [path, categories, products, pages, cart, siteStatus, pageStatus, listingState, productState]);
 
   return (
     <>
