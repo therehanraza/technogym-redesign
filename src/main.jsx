@@ -147,6 +147,16 @@ function getBackendPagePath(path) {
   return path.startsWith("/stories/") ? "/stories" : path;
 }
 
+function updateMetaDescription(content) {
+  let tag = document.querySelector('meta[name="description"]');
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute("name", "description");
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", content);
+}
+
 function LoadingState({ title = "Loading content", text = "Fetching the latest website data from the backend." }) {
   return (
     <section className="section container page-state">
@@ -214,12 +224,13 @@ function Header({ cartCount, onSearch, onCart, navigation }) {
       </div>
       <header className="site-header">
         <Link to="/" className="brand" onClick={() => setActiveMenu(null)}>TECHNOGYM</Link>
-        <nav className="desktop-nav">
+        <nav className="desktop-nav" aria-label="Primary navigation">
           {links.map(([label, , menuKey]) => (
             <button
               key={label}
               type="button"
               className={`nav-link ${activeMenu === menuKey ? "active" : ""}`}
+              aria-expanded={activeMenu === menuKey}
               onClick={() => setActiveMenu((current) => current === menuKey ? null : menuKey)}
               onMouseEnter={() => setActiveMenu(menuKey)}
             >
@@ -298,7 +309,7 @@ function Hero({ page }) {
           </div>
         </div>
         <div className="hero-media">
-          <img src={heroPage.image} alt="Luxury home gym" />
+          <img src={heroPage.image} alt="Luxury home gym" loading="eager" decoding="async" />
           <div className="caption"><small>Featured experience</small><b>Luxury Home Gym Setup</b><span>Equipment, space planning and consultation in one flow.</span></div>
         </div>
       </div>
@@ -310,7 +321,7 @@ function ProductCard({ product, onAdd }) {
   return (
     <article className="product-card">
       <Link to={`/product/${product.slug}`} className="product-image">
-        <img src={product.image} alt={product.name} />
+        <img src={product.image} alt={product.name} loading="lazy" decoding="async" />
         <span>{product.tag || "Featured"}</span>
       </Link>
       <div className="product-body">
@@ -344,7 +355,7 @@ function Home({ categories, products, onAdd, page, loading }) {
       <section className="section container">
         <div className="section-head"><div><p className="eyebrow">Shop by category</p><h2>Every equipment category covered</h2></div><Link to="/category/all-products">View all categories</Link></div>
         <div className="category-grid">
-          {categories.length ? categories.slice(0, 8).map((item) => <Link key={item.slug} to={`/category/${item.slug}`} className="category-card"><img src={item.image} alt="" /><h3>{item.name}</h3><p>{item.description}</p></Link>) : <div className="inline-state">{loading ? "Loading backend categories..." : "No backend categories found."}</div>}
+          {categories.length ? categories.slice(0, 8).map((item) => <Link key={item.slug} to={`/category/${item.slug}`} className="category-card"><img src={item.image} alt="" loading="lazy" decoding="async" /><h3>{item.name}</h3><p>{item.description}</p></Link>) : <div className="inline-state">{loading ? "Loading backend categories..." : "No backend categories found."}</div>}
         </div>
       </section>
       <section className="section dark-band">
@@ -355,11 +366,11 @@ function Home({ categories, products, onAdd, page, loading }) {
       </section>
       <section className="section container">
         <div className="section-head"><div><p className="eyebrow">Business</p><h2>Commercial solutions</h2></div></div>
-        <div className="business-grid">{businessCards.map(([name, path, text, image]) => <Link key={name} to={path} className="category-card"><img src={image} alt="" /><h3>{name}</h3><p>{text}</p></Link>)}</div>
+        <div className="business-grid">{businessCards.map(([name, path, text, image]) => <Link key={name} to={path} className="category-card"><img src={image} alt="" loading="lazy" decoding="async" /><h3>{name}</h3><p>{text}</p></Link>)}</div>
       </section>
       <section className="design-band">
         <div className="container design-grid">
-          <img src="https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=1400&q=85" alt="Gym room design" />
+          <img src="https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=1400&q=85" alt="Gym room design" loading="lazy" decoding="async" />
           <div><p className="eyebrow dark">Design & room planner</p><h2>Plan a premium gym before buying equipment.</h2><p>Room planner, interior design, layout consultation and curated product selection.</p><Link to="/room-planner" className="dark-button">Open Room Planner</Link></div>
         </div>
       </section>
@@ -441,7 +452,7 @@ function PageHero({ eyebrow, title, text, image }) {
           <p>{text}</p>
           <div className="page-tags"><span>Equipment</span><span>Planning</span><span>Support</span></div>
         </div>
-        {image && <img src={image} alt="" />}
+        {image && <img src={image} alt="" loading="lazy" decoding="async" />}
       </div>
     </section>
   );
@@ -479,14 +490,14 @@ function RequestForm({ mode, cart, onOrderComplete }) {
   };
   return (
     <form className="request-form" onSubmit={submit}>
-      <input name="fullName" value={form.fullName} onChange={update} placeholder="Full Name" />
-      <input name="emailOrPhone" value={form.emailOrPhone} onChange={update} placeholder="Email / Phone" />
-      <select name="requirementType" value={form.requirementType} onChange={update}><option>Home Gym</option><option>Commercial</option><option>Support</option><option>Design Consultation</option></select>
-      {isCheckout && <input name="address" value={form.address} onChange={update} placeholder="Delivery address" />}
-      <textarea name="message" value={form.message} onChange={update} placeholder="Requirement details" />
-      {status.error && <p className="form-error">{status.error}</p>}
-      {status.message && <p className="form-success">{status.message}</p>}
-      <button className="primary-cta" disabled={status.loading}>{status.loading ? "Submitting..." : isCheckout ? "Place Request" : "Submit"}</button>
+      <input name="fullName" value={form.fullName} onChange={update} placeholder="Full Name" aria-label="Full name" autoComplete="name" required />
+      <input name="emailOrPhone" value={form.emailOrPhone} onChange={update} placeholder="Email / Phone" aria-label="Email or phone" autoComplete="email" required />
+      <select name="requirementType" value={form.requirementType} onChange={update} aria-label="Requirement type"><option>Home Gym</option><option>Commercial</option><option>Support</option><option>Design Consultation</option></select>
+      {isCheckout && <input name="address" value={form.address} onChange={update} placeholder="Delivery address" aria-label="Delivery address" autoComplete="street-address" />}
+      <textarea name="message" value={form.message} onChange={update} placeholder="Requirement details" aria-label="Requirement details" />
+      {status.error && <p className="form-error" role="alert">{status.error}</p>}
+      {status.message && <p className="form-success" role="status">{status.message}</p>}
+      <button type="submit" className="primary-cta" disabled={status.loading}>{status.loading ? "Submitting..." : isCheckout ? "Place Request" : "Submit"}</button>
     </form>
   );
 }
@@ -659,13 +670,38 @@ function AdminDashboard() {
 function SearchOverlay({ open, onClose, products }) {
   const [query, setQuery] = useState("");
   const results = products.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()) || item.category.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.body.classList.add("modal-open");
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.removeEventListener("keydown", closeOnEscape);
+      setQuery("");
+    };
+  }, [open, onClose]);
   if (!open) return null;
-  return <div className="overlay"><div className="search-panel"><button className="icon-button close" onClick={onClose}><X /></button><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products, services, support" />{query && results.map((item) => <Link key={item.slug} to={`/product/${item.slug}`} onClick={onClose}>{item.name}<span>{item.category}</span></Link>)}</div></div>;
+  return <div className="overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><div className="search-panel" role="dialog" aria-modal="true" aria-label="Search products"><button className="icon-button close" aria-label="Close search" onClick={onClose}><X /></button><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products, services, support" aria-label="Search products, services, and support" />{query && (results.length ? results.map((item) => <Link key={item.slug} to={`/product/${item.slug}`} onClick={onClose}>{item.name}<span>{item.category}</span></Link>) : <p className="muted search-empty">No matching products found.</p>)}</div></div>;
 }
 
 function CartDrawer({ open, onClose, cart, remove }) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.body.classList.add("modal-open");
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open, onClose]);
   if (!open) return null;
-  return <div className="drawer-wrap"><div className="drawer"><button className="icon-button close" onClick={onClose}><X /></button><h2>Your selection</h2>{cart.length === 0 ? <p className="muted">No equipment added yet.</p> : cart.map((item, index) => <div className="cart-line" key={`${item.slug}-${index}`}><img src={item.image} alt="" /><div><b>{item.name}</b><p>{item.price}</p></div><button onClick={() => remove(index)}><Trash2 size={18} /></button></div>)}<Link to="/checkout" onClick={onClose} className="primary-cta wide">Continue to Checkout</Link></div></div>;
+  return <div className="drawer-wrap" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><div className="drawer" role="dialog" aria-modal="true" aria-label="Cart selection"><button className="icon-button close" aria-label="Close cart" onClick={onClose}><X /></button><h2>Your selection</h2>{cart.length === 0 ? <p className="muted">No equipment added yet.</p> : cart.map((item, index) => <div className="cart-line" key={`${item.slug}-${index}`}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><b>{item.name}</b><p>{item.price}</p></div><button type="button" aria-label={`Remove ${item.name}`} onClick={() => remove(index)}><Trash2 size={18} /></button></div>)}<Link to="/checkout" onClick={onClose} className="primary-cta wide">Continue to Checkout</Link></div></div>;
 }
 
 function App() {
@@ -780,6 +816,30 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [path]);
 
+  useEffect(() => {
+    let title = "Technogym Redesign";
+    let description = "Premium wellness equipment, design planning, product discovery, consultation, and backend-connected catalogue flows.";
+    if (path.startsWith("/product/") && productState.product) {
+      title = productState.product.name;
+      description = productState.product.description;
+    } else if (path.startsWith("/category/") && listingState.category) {
+      title = listingState.category.name;
+      description = listingState.category.description;
+    } else if (path === "/admin") {
+      title = "Admin Dashboard";
+      description = "Inquiry and order management dashboard for the Technogym redesign backend.";
+    } else {
+      const pagePath = getBackendPagePath(path);
+      const page = pagePath ? pages[pagePath] : null;
+      if (page) {
+        title = page.title;
+        description = page.text;
+      }
+    }
+    document.title = title === "Technogym Redesign" ? title : `${title} | Technogym Redesign`;
+    updateMetaDescription(description);
+  }, [path, pages, listingState.category, productState.product]);
+
   const content = useMemo(() => {
     const addProduct = (item) => { setCart((current) => [...current, item]); setCartOpen(true); };
     if (siteStatus.error && !categories.length && !products.length) return <ErrorState text={siteStatus.error} onRetry={loadSiteData} />;
@@ -795,8 +855,11 @@ function App() {
 
   return (
     <>
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <Header navigation={navigation} cartCount={cart.length} onSearch={() => setSearchOpen(true)} onCart={() => setCartOpen(true)} />
-      {content}
+      <main id="main-content" tabIndex="-1">
+        {content}
+      </main>
       <footer className="site-footer">
         <div className="container footer-layout">
           <div className="footer-brand">
